@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://bimbelsyf.com/wp-content/uploads/2025/05/cropped-favicon-192x192.jpeg" sizes="192x192" />
+    <title>Tryout Asy-Syifa - TKA Matematika 2025</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked-katex-extension/lib/index.umd.js"></script>
+    <style>
+
+@font-face {
+    font-family: 'Noto';
+    font-style: normal;
+    font-weight: normal;
+    src: url('noto.woff2') format('woff');
+}
+    
+.main-txtbox {
+    width: 95%;
+    border: 0px;
+    overflow: hidden;
+    resize: none;
+    font-family: 'Noto';
+    color: #1A1A1B;
+    font-size: 14px;
+    line-height: 21px;
+    font-weight: 400;
+    padding-bottom: 15px;
+    margin-top: 47px;
+    max-width: 750px;
+    margin: 47px auto 0px auto;
+}
+
+.main-txtbox p {
+    margin:18px;
+}
+
+#incorrect-answers p {
+    margin:18px;
+}
+
+
+table{
+    border-spacing:0px;
+    margin:0 auto;
+}
+
+th {
+    background-color: #e2e4e7;
+    border-left: 1px solid #e2e4e7;
+    color: #000;
+    padding: 6px 10px;
+    
+}
+
+td {
+    vertical-align: top;
+    padding: 5px 10px;
+    border-left: 1px solid rgba(120,125,125,0.10);
+}
+
+
+tr td:first-child, tr th:first-child {
+    border-left: 0;
+}
+
+
+        /* A little custom style for transitions */
+        .modal-container, .question-card, #results-container {
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+        .hidden-item {
+            /*
+            opacity: 0;
+            transform: scale(0.95);*/
+            display: none;
+            pointer-events: none; /* Prevent interaction when hidden */
+        }
+        .visible-item {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto; /* Allow interaction when visible */
+        }
+        /* Ensure modals and main containers are truly hidden to fix layout issues */
+        .modal-container.hidden-item,
+        #exam-container.hidden-item,
+        #results-container.hidden-item {
+            display: none;
+        }
+        .modal-container {
+            display: flex;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans flex items-center justify-center min-h-screen p-4">
+
+    <!-- Student Name Prompt Modal -->
+    <div id="name-modal" class="modal-container fixed inset-0 bg-gray-900 bg-opacity-75 items-center justify-center z-50 hidden-item">
+        <div class="bg-white p-8 rounded-lg shadow-2xl w-full max-w-md">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">Welcome to the Exam</h2>
+            <p class="mb-6 text-gray-600">Please enter your full name to begin.</p>
+            <input type="text" id="student-name-input" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., Jane Doe">
+            <p id="name-error" class="text-red-500 text-sm mt-2 hidden-item">Please enter a name.</p>
+            <button id="start-exam-btn" class="w-full mt-4 bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">Start Exam</button>
+        </div>
+    </div>
+    
+    <!-- Resume Session Modal -->
+    <div id="resume-modal" class="modal-container fixed inset-0 bg-gray-900 bg-opacity-75 items-center justify-center z-50 hidden-item">
+        <div class="bg-white p-8 rounded-lg shadow-2xl w-full max-w-md text-center">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">Exam in Progress</h2>
+            <p class="mb-6 text-gray-600">It looks like you have a saved session. Would you like to resume?</p>
+            <div class="flex justify-center gap-4">
+                <button id="resume-no-btn" class="px-6 py-2 bg-gray-300 text-gray-800 rounded-lg font-semibold hover:bg-gray-400 transition-colors">Start New</button>
+                <button id="resume-yes-btn" class="px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors">Yes, Resume</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Main Exam Container -->
+    <div id="exam-container" class="w-full max-w-3xl bg-white p-6 rounded-xl shadow-lg hidden-item">
+        <div class="flex justify-between items-center border-b pb-4 mb-4">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">Exam in Progress</h1>
+                <p id="student-name-display" class="text-gray-600"></p>
+            </div>
+            <div id="progress-indicator" class="text-right">
+                <p class="font-semibold text-gray-700">Question <span id="current-q-num"></span> of <span id="total-q-num"></span></p>
+            </div>
+        </div>
+
+        <!-- Questions will be dynamically shown here -->
+        <div id="questions-wrapper">
+            <!-- Sample Question 1: Single-Choice -->
+            <div id="q1" class="question-card hidden-item">
+                <div class="main-txtbox" contenteditable="false" spellcheck="false"><p>Bentuk sederhana dari <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle displaystyle="true" scriptlevel="0"><mfrac><mrow><mn>72</mn><msup><mi>a</mi><mn>2</mn></msup><msup><mi>b</mi><mrow><mo>−</mo><mn>5</mn></mrow></msup><msup><mi>c</mi><mn>7</mn></msup></mrow><mrow><mo>−</mo><mn>4</mn><msup><mi>b</mi><mn>2</mn></msup><msup><mi>a</mi><mrow><mo>−</mo><mn>3</mn></mrow></msup><msup><mi>c</mi><mn>9</mn></msup></mrow></mfrac></mstyle></mrow><annotation encoding="application/x-tex">\cfrac{72a^2b^{-5}c^7}{-4b^2a^{-3}c^9}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:2.3593em;vertical-align:-0.7693em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.59em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">−</span><span class="mord">4</span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7401em;"><span style="top:-2.989em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7401em;"><span style="top:-2.989em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mtight">3</span></span></span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7401em;"><span style="top:-2.989em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">9</span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.74em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">72</span><span class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mtight">5</span></span></span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">7</span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">&ZeroWidthSpace;</span></span><span class="vlist-r"><span class="vlist" style="height:0.7693em;"><span></span></span></span></span></span><span></span></span></span></span></span> adalah ...</p>
+<p>A.    <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle displaystyle="true" scriptlevel="0"><mfrac><mrow><mo>−</mo><mn>18</mn><mi>a</mi><msup><mi>c</mi><mn>16</mn></msup></mrow><msup><mi>b</mi><mn>3</mn></msup></mfrac></mstyle></mrow><annotation encoding="application/x-tex">\cfrac{-18ac^{16}}{b^3}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:2.276em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.59em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7401em;"><span style="top:-2.989em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.74em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">−</span><span class="mord">18</span><span class="mord mathnormal">a</span><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">16</span></span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">&ZeroWidthSpace;</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span></span></span></span></span></span></p>
+<p>B.    <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle displaystyle="true" scriptlevel="0"><mfrac><mrow><mo>−</mo><mn>18</mn><msup><mi>a</mi><mn>5</mn></msup></mrow><mrow><msup><mi>b</mi><mn>7</mn></msup><msup><mi>c</mi><mn>2</mn></msup></mrow></mfrac></mstyle></mrow><annotation encoding="application/x-tex">\cfrac{-18a^5}{b^7c^2}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:2.276em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.59em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7401em;"><span style="top:-2.989em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">7</span></span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7401em;"><span style="top:-2.989em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.74em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">−</span><span class="mord">18</span><span class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">5</span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">&ZeroWidthSpace;</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span></span></span></span></span></span></p>
+<p>C.    <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle displaystyle="true" scriptlevel="0"><mfrac><mrow><mo>−</mo><mn>18</mn><msup><mi>c</mi><mn>2</mn></msup></mrow><mrow><msup><mi>b</mi><mn>7</mn></msup><mi>a</mi></mrow></mfrac></mstyle></mrow><annotation encoding="application/x-tex">\cfrac{-18c^2}{b^7a}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:2.276em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.59em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7401em;"><span style="top:-2.989em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">7</span></span></span></span></span></span></span></span><span class="mord mathnormal">a</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.74em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">−</span><span class="mord">18</span><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">&ZeroWidthSpace;</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span></span></span></span></span></span></p>
+<p>D.    <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle displaystyle="true" scriptlevel="0"><mfrac><mrow><mo>−</mo><mn>18</mn><msup><mi>a</mi><mn>5</mn></msup></mrow><mrow><msup><mi>b</mi><mn>3</mn></msup><msup><mi>c</mi><mn>2</mn></msup></mrow></mfrac></mstyle></mrow><annotation encoding="application/x-tex">\cfrac{-18a^5}{b^3c^2}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:2.276em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.59em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7401em;"><span style="top:-2.989em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7401em;"><span style="top:-2.989em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.74em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">−</span><span class="mord">18</span><span class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">5</span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">&ZeroWidthSpace;</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span></span></span></span></span></span></p>
+<p>E.    <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle displaystyle="true" scriptlevel="0"><mfrac><mrow><mo>−</mo><mn>18</mn><msup><mi>a</mi><mn>5</mn></msup><msup><mi>b</mi><mn>3</mn></msup></mrow><msup><mi>c</mi><mn>2</mn></msup></mfrac></mstyle></mrow><annotation encoding="application/x-tex">\cfrac{-18a^5b^3}{c^2}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:2.276em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.59em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7401em;"><span style="top:-2.989em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.74em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">−</span><span class="mord">18</span><span class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">5</span></span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">&ZeroWidthSpace;</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span></span></span></span></span></span></p>
+</div>
+                <div class="space-y-3">
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q1" value="a" class="mr-3"> A
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q1" value="b" class="mr-3"> B
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q1" value="c" class="mr-3"> C
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q1" value="d" class="mr-3"> D
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q1" value="e" class="mr-3"> E
+                    </label>
+                </div>
+            </div>
+
+
+
+<div id="q2" class="question-card hidden-item">
+<div class="main-txtbox" contenteditable="false" spellcheck="false"><p>Jika <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">x&gt;0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.5782em;vertical-align:-0.0391em;"></span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&gt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">0</span></span></span></span> dan <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">y&gt;0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7335em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&gt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">0</span></span></span></span> maka <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle displaystyle="true" scriptlevel="0"><mfrac><mrow><mn>3</mn><mo>−</mo><mn>3</mn><msup><mrow><mi>log</mi><mo>⁡</mo></mrow><mn>2</mn></msup><mi>x</mi><mi>y</mi></mrow><mrow><mn>1</mn><mo>−</mo><mi>log</mi><mo>⁡</mo><msup><mi>x</mi><mn>3</mn></msup><msup><mi>y</mi><mn>2</mn></msup><mo>+</mo><mn>2</mn><mi>log</mi><mo>⁡</mo><mi>x</mi><msqrt><mi>y</mi></msqrt></mrow></mfrac></mstyle></mrow><annotation encoding="application/x-tex">\cfrac{3-3 \log^2xy}{1-\log x^3y^2 + 2 \log x\sqrt{y}}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:2.6614em;vertical-align:-1.0229em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.6384em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7401em;"><span style="top:-2.989em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7401em;"><span style="top:-2.989em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord">2</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">x</span><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.7031em;"><span class="svg-align" style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord" style="padding-left:0.833em;"><span class="mord mathnormal" style="margin-right:0.03588em;">y</span></span></span><span style="top:-2.6631em;"><span class="pstrut" style="height:3em;"></span><span class="hide-tail" style="min-width:0.853em;height:1.08em;"><svg xmlns="http://www.w3.org/2000/svg" width="400em" height="1.08em" viewBox="0 0 400000 1080" preserveAspectRatio="xMinYMin slice"><path d="M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z"></path></svg></span></span></span><span class="vlist-s">&ZeroWidthSpace;</span></span><span class="vlist-r"><span class="vlist" style="height:0.3369em;"><span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.74em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">3</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord">3</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop"><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8984em;"><span style="top:-3.1473em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">x</span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span></span></span></span><span class="vlist-s">&ZeroWidthSpace;</span></span><span class="vlist-r"><span class="vlist" style="height:1.0229em;"><span></span></span></span></span></span><span></span></span></span></span></span> = ...</p>
+<p>A. <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mo>+</mo><mi>log</mi><mo>⁡</mo><mi>x</mi><mi>y</mi></mrow><annotation encoding="application/x-tex">3 + \log xy</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">3</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">x</span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span></span></span></span></p>
+<p>B. <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mi>log</mi><mo>⁡</mo><mi>x</mi><mi>y</mi></mrow><annotation encoding="application/x-tex">3 \log xy</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord">3</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">x</span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span></span></span></span></p>
+<p>C. <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mi>log</mi><mo>⁡</mo><mn>10</mn><mi>x</mi><mi>y</mi></mrow><annotation encoding="application/x-tex">3 \log 10 xy</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord">3</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">10</span><span class="mord mathnormal">x</span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span></span></span></span></p>
+<p>D. <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle displaystyle="true" scriptlevel="0"><mfrac><mn>1</mn><mn>3</mn></mfrac></mstyle></mrow><annotation encoding="application/x-tex">\cfrac{1}{3}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:2.276em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.59em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">3</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.74em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">&ZeroWidthSpace;</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span></span></span></span></span></span></p>
+<p>E. <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn></mrow><annotation encoding="application/x-tex">3</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">3</span></span></span></span></p>
+</div>
+                <div class="space-y-3">
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q2" value="a" class="mr-3"> A
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q2" value="b" class="mr-3"> B
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q2" value="c" class="mr-3"> C
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q2" value="d" class="mr-3"> D
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q2" value="e" class="mr-3"> E
+                    </label>
+                </div>
+            </div>
+
+
+
+
+
+<div id="q3" class="question-card hidden-item">
+
+
+<div class="main-txtbox" contenteditable="false" spellcheck="false"><p>Pada tahun 2021, populasi kambing di kota A adalah 3950 kambing dan di kota B adalah 700 kambing. Setiap bulan terjadi peningkatan populasi sebanyak 30 kambing di kota A dan 15 kambing di kota B. Pada saat populasi kambing di kota A lima kali populasi di kota B, populasi kambing di kota A adalah ... kambing. </p>
+
+<p>A. 4310</p>
+<p>B. 4280</p>
+<p>C. 4250</p>
+<p>D. 4220</p>
+<p>E. 4190</p>
+</div>
+
+                <div class="space-y-3">
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q3" value="a" class="mr-3"> A
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q3" value="b" class="mr-3"> B
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q3" value="c" class="mr-3"> C
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q3" value="d" class="mr-3"> D
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q3" value="e" class="mr-3"> E
+                    </label>
+                </div>
+            </div>
+
+
+
+<div id="q4" class="question-card hidden-item">
+<div class="main-txtbox" contenteditable="false" spellcheck="false"><p>Misalnya Anda terserang flu. Anda lupa menutup mulut ketika bersin saat dua orang teman baik Anda datang menjenguk. Ternyata, keesokan harinya mereka juga terserang flu. Diasumsikan bahwa keesokan harinya, setiap teman menyebarkan virus kepada dua teman lainnya melalui tetesan yang sama, kemudian setiap orang yang sakit menginfeksi dua teman lainnya, dan seterusnya. Jika teman Anda menjenguk pada hari ke-1, maka banyak orang yang terkena flu sampai hari ke-8 adalah ... orang.</p>
+<p>A. 128</p>
+<p>B. 192</p>
+<p>C. 256</p>
+<p>D. 383</p>
+<p>E. 510</p>
+</div>
+                <div class="space-y-3">
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q4" value="a" class="mr-3"> A
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q4" value="b" class="mr-3"> B
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q4" value="c" class="mr-3"> C
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q4" value="d" class="mr-3"> D
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q4" value="e" class="mr-3"> E
+                    </label>
+                </div>
+            </div>
+
+<div id="q5" class="question-card hidden-item">
+<div class="main-txtbox" contenteditable="false" spellcheck="false"><p>Ayah sedang menanti kelahiran anak pertamanya. Dia sedang merencanakan menabung di suatu bank ketika anaknya lahir untuk biaya pendidikan anaknya kelak. Bank tersebut memberikan bunga majemuk sebesar 2.67% per 4 bulan. Ayah menginginkan mendapat uang sebesar Rp 20.000.000 saat anak berusia 18 tahun. Besar simpanan uang yang harus ditabung agar ayah dapat mencapai tujuannya adalah ... (dibulattkan ke ribuan terdekat)</p>
+<p>A.  Rp 4.821.000</p>
+<p>B.  Rp 4.820.000</p>
+<p>C.  Rp 4.721.000</p>
+<p>D.  Rp 4.720.000</p>
+<p>E.  Rp 4.621.000</p>
+</div>
+                <div class="space-y-3">
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q5" value="a" class="mr-3"> A
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q5" value="b" class="mr-3"> B
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q5" value="c" class="mr-3"> C
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q5" value="d" class="mr-3"> D
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q5" value="e" class="mr-3"> E
+                    </label>
+                </div>
+            </div>
+
+
+
+
+<div id="q6" class="question-card hidden-item">
+<div class="main-txtbox"  contenteditable="false" spellcheck="false"><p>Pinjaman sebesar Rp 500.000 akan dilunasi dengan anuitas dalam 10 kali cicilan. Jika besarnya suku bunga 3% per tahun, maka besarnya anuitas adalah ...</p>
+<div style="text-align:center">
+
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mn>1</mn><mo>+</mo><mi>i</mi><msup><mo stretchy="false">)</mo><mi>n</mi></msup></mrow><annotation encoding="application/x-tex">(1+i)^n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">i</span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6644em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">n</span></span></span></span></span></span></span></span></span></span></span> </p>
+</div>
+
+<table>
+<thead>
+<tr>
+<th>n</th>
+<th>3%</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>9</td>
+<td>1,30477</td>
+</tr>
+<tr>
+<td>10</td>
+<td>1,34392</td>
+</tr>
+<tr>
+<td>11</td>
+<td>1,38423</td>
+</tr>
+</tbody></table>
+<p>A. Rp 13.047,70</p>
+<p>B. Rp 13.439,20</p>
+<p>C. Rp 13.842,30</p>
+<p>D. Rp 35.464,33</p>
+<p>E. Rp 58.614,79</p>
+</div>
+                <div class="space-y-3">
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q6" value="a" class="mr-3"> A
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q6" value="b" class="mr-3"> B
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q6" value="c" class="mr-3"> C
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q6" value="d" class="mr-3"> D
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q6" value="e" class="mr-3"> E
+                    </label>
+                </div>
+            </div>
+
+
+
+
+<div id="q7" class="question-card hidden-item">
+<div class="main-txtbox"  contenteditable="false" spellcheck="false"><ul>
+<li>Daging ayam besar dan kecil ditimbang, beratnya 2.302 gram</li>
+<li>Daging ayam besar dan sedang ditimbang, beratnya 2.420 gram</li>
+<li>Daging ayam sedang dan kecil ditimbang, beratnya 1.972 gram</li>
+</ul>
+<p>Berat ketiga daging ayam tersebut seluruhnya adalah ...</p>
+<p>A. 3.135 gram</p>
+<p>B. 3.247 gram</p>
+<p>C. 3.347 gram</p>
+<p>D. 3.357 gram</p>
+<p>E. 4.125 gram</p>
+</div>
+                <div class="space-y-3">
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q7" value="a" class="mr-3"> A
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q7" value="b" class="mr-3"> B
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q7" value="c" class="mr-3"> C
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q7" value="d" class="mr-3"> D
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q7" value="e" class="mr-3"> E
+                    </label>
+                </div>
+            </div>
+
+
+
+<div id="q8" class="question-card hidden-item">
+<div class="main-txtbox" contenteditable="false" spellcheck="false"><ul>
+<li>x + y - z = 24</li>
+<li>2x - y + 2z = 4</li>
+<li>z + 2y - 3z = 36</li>
+</ul>
+<p>Jika himpunan penyelesaian persamaan di atas adalah a,b,c; maka a : b : c = ...</p>
+<p>A. 2 : 7 : 1</p>
+<p>B. 2 : 5 : 4</p>
+<p>C. 2 : 5 : 1</p>
+<p>D. 1 : 5 : 2</p>
+<p>E. 1 : 2 : 5</p>
+</div>
+                <div class="space-y-3">
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q8" value="a" class="mr-3"> A
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q8" value="b" class="mr-3"> B
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q8" value="c" class="mr-3"> C
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q8" value="d" class="mr-3"> D
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q8" value="e" class="mr-3"> E
+                    </label>
+                </div>
+            </div>            
+
+
+
+
+<div id="q9" class="question-card hidden-item">
+<div class="main-txtbox"  contenteditable="false" spellcheck="false"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASsAAAEvCAIAAACSV3D1AAAgAElEQVR4Ae29CZgURZo3Prvf7hzfN7v7f3a/ffY/zMyO94Ez6qitcymMDjqj48XgwKwy6uiI0FwiAoIiogICAiqHIiigoIDYzX12F9Acclef9H1W131XZlaeER/VAdHZeVRVVmcGVJv58NCRcbwR8Yt8KyLeeN83vgUvvUeSJJZlBUEAAKDWAQAEQWBZVpIkzfaiDBzHaaZqRgIAOI7TI4jr5Xk+Tb0KyoimIAiKeAihKIosy+Ie4QwAAFSFIkmSJI7jFJG4VA4BQRByI7h48eLf/va3ekDxPJ8b2TRdQB/AmTNnbr311p07d8pz6sGo1wwAgCbscpoQQlSjiWgr6Kd5/VaaNM2kzs7OUaNGPfPMM8OHD4/H45p57Mh8R2DPnj1PP/30+PHjn3jiiQceeCAYDF6UHlVVVR0+fFgUxYtSO5lKjXEgwzCDBg06ceIEhDCRSPA8T6aVdi2EERAE4dSpU1u3bj1y5IjmlE64PX24OmMcWFdX99xzzzkcjk8//TQej+NZm+O4ZNdjj1Yf/lbsrlmBgDEO3LJlS//+/T///PNdu3Zdd911LpcLtenRRx8tLCycMmVKUVGR3+9nWdbv99M0HQ6Hg8GgKIqBQCDR9QQCAVEU/X5/JBJhGMbv96P/g8Egfg2FQsFgkOd5RCQej6NSra2tsVgskUj4/f5kMun3+4PBIEVR6BWVQlWzLBuLxXBdiUQiFovhhoVCoXg87vf7OY4LBoOhUAhVLQhCOBxubm6WJMnv91MUFY1G/X4/akm46/H7/YIgBAKBYDBI07Tf7xdFMRwOh0Ih1C+apkOhEMqGuhkOh1E2v98fDocpiurs7BRFMRQKhcNhQRAwCLiuSCQSCoUCgQBKjUajqJsQwkAgEI1GUV0YBI7j/H5/PB4PBoOoX36/v66uDpWSJCkQCMTjcQxOIBDAvaZpOhAIYEgZhkHgoFGjKAp1k+f5QCCA2o8yo1IulwvViLBCpWiaTiQSCP9AIBCJRDDg/q4H0USAB4NBDEI0GsWlol2P3+8PhUJutxuNCIIo1PWgcUkmk5FIJBgMolGLx+ORSASDEAqF0AeDxjocDiOsOI6Tj1oikWhra/P5fAiiaDSKG4wAR1BzHKcYNTS4qJSi6ng8jr+QUCgUiUTYrkfBxsY4cNeuXYMGDUIkxo0bd+jQIRQuKChwOp0K0qa/hkIh02kqCAqC4Ha7FZGmv9I0TWBv09DQYHrL1QT9fr860tyYaDTKMIy5NNXU3G63nrRJnTm3GEmS1Bs3YxzY2tr6hz/8QZIkAMDYsWOPHDmCmkKGAwkscZEwMzd8sy8liiJewGdfymjOZDJptEgO+dWfVA5E0hcRBMFq3oAQmi7RVXcKdD2KeGMcyHHcfffdN2/evNWrV//kJz/BIjIyHEjg55bn+fb2dgVGpr8mEgkCc2B1dbXpLVcT9Hg86khzY0KhEE3T5tJUU2tvb7d6UEyYAyGE8Xh827ZtxcXFnZ2duBtkOJDAMEiSROCIhed5Aj/q+PcRD5OJAY7jOjo6Wltb6+vrWy1+GhoampubLa6ktba2tqWlxfRa2tvb8TE1AEA97sbmQL0hJMOB0WhUrwFmxSORgFnU9Ogkk0n1SOhlzjne0snc4/EgYTiBrYEoigTgkmuA5Iy5uiBN021tbShekiQ1XPnEgYFAQN1Dc2N4nscCXnMpy6lRFGX1ggdCWFtbK6/U3HBjYyMiSGYfSAAui/aBgiDU19cjrMxZhWoOJJk5kMBgIyUmzT6aGElGEmPpoh1zIIHZCXQ9JuKvSQrJFzWTehMp58C8X4XakhhDn4KlkhjMgab8LHIcN27cOLxfWr9+/alTp3BnBUFIMwfu2rVr8uTJM2bM0Muzbt26Q4cOAQB27tw5e/bsefPmKdr86quvLliwYMmSJTzPu93uWbNm4apR4KOPPjp27BhFUYsWLZo/f/7cuXNxU1GG5cuXz5kzZ+XKlaIodnR0TJ8+HVOQc2Dez4EE9oHoQBnDZ1GAYRgCU4el+0DMgeqNTQ6gJZPJO++8Ex+fdHR0RCKRWCzm9Xqrqqpqa2sRXOFw+MyZM42NjXL03G53W1vbY489hjiQZVmFLG3MmDGiKMbj8cGDB7MsW1ZWtmLFCnkj165dCyHkeR4dEc2aNUvBzBMnToQQ4ql4z549RUVFmEJVVdWyZcsAAC+99FJLSwuEcM6cObiFCg5Uw5VP+0AyHEhgpu1LHCg1vAvr5xn7F1Mekyg4cOHChQ6H4/jx47///e/Ly8snT55cV1cHIXz++eerqqrefvttpJmMecDtdmMO3L9//+uvv46TIITLly8/V9br9SLG6+joGDBgAOYQCOHAgQMHDRq0a9cuxIElJSWVlZVyCh999BF6pShq7dq1Q4YMkattTJ8+/ejRoxDCY8eOIUuOAwcOVFVVoSJ9igMJ8IZ9Hij/8tKE8RwoHX4AHhxo7J9vr4KyHgcuXLgQQlhcXLxixYpDhw4NHTp0woQJo0ePnj9/vpyCnAMTiYTiiHL16tWIA7/44gsIocfjueuuu+SzHNKdHD16tM/ngxAeOXJkz549tbW15zTADh8+7PP5Pv/8c1Qdx3GVlZWrVq0qLy/HDZg0aRL6RaisrERzo9Pp3Lp1K8qg4EDFAhhCmE9zIMuyuNsWBSRJslSAgUeFgE5MLBazCCUIYTcH6lhsGqpajwPXrVsHIdyyZcvSpUvLysrWrFkT73rwehXVIudAdb1o6gsEAi+//DIAoLa2dvjw4Wr8P/jgA9Qph8Nx4sSJurq63bt3HzlyhOO4jz/+WE62oqJi7NixOGbFihW7du2CEG7YsOH48eOIh48dO4YyyDnQlsRg0HQD9hyoC03PBMyB6h/1nhmzekMcePjw4RMnTpSXl+NVqJwDz01fI0aMOH78+NGjR2tqajBdt9u9e/fuP/7xj8eOHeN5Xr0KnTJlCjLgfuKJJ/bv3z937lx0PDB27Nh4PL53797jx4+XlZUNHjw4kUhACN9//31Fp9544w0AQDweLykpqaioeOWVV5A+5t///ne0gRw/fvzx48eHDRsWiUQghMuWLcOrXDkH5r0khoxmtmINg0faxAAZzWzMJCa2HJPCxBUfK85gKAAAcLvdnV2P1+uNRqPJZJJlWcQS8XgciQAoinK73R6PR74aSiQSqCCyOEGmEvLa586d29TUBCFMJpMejwerCs2aNeuc+ISmaU/XEw6HkVbwiy++KC8OIXzjjTdaW1tFUfT5fG63G3+Hc+bMQTmj0ajb7UYqCuesKEaNGoUpKDgwvyUxaDxw36wIiKKIfsasII5pZu/2AhfJIeD1enMolWURzIHyDVWWZY1m66VOTDwex1op8qoV+CCdmFAo1NHRIc8GIQyFQpqCZQUFVEqRWc6BAAA1XPm0D7QlMYovI/1rHp0Hpu9I+vPA9GWzT7V1YjJjZcqCJ301yGNP+jy9T7V1YgxhaJG2iqINFtWimAPVEqB8mgPx+luBnYmvfclCFy8UTcQHk8LECfwsil0PrtqiAD6RN5e+nAPzXjObDAfakphsPkGbA7NBCULYpziQwM+tvQrN8sPCHIjF7lkW1MwmCMKqVauwnHDZsmVlZWU4Z/r1YW1t7aZNmzZv3hwOh3EReaCsrGzjxo1I3Prll186HA51mysqKtatWydJUnl5+YcffigvDiHcvn17cXExTdPr169ft27dmjVrsHcIlPPkyZMbNmyor68HABw7dgzr0Cg40D4PVACr8WqfB2qAohWFOdCUn0XFiTzP83KZYXpJTHl5OUVRzc3Nv//97zEPy5s8cuRIjuMYhrn//vsDgcD27dsVXoDPud4qLCz8wx/+gPbncr1qRGfMmDHoV4DpehYsWIC7DyFsbm5+5513KIoaPny4z+c7d6Tx8ssv4wYo5kA1XPm0D1RoQuBOmhiQJImiKBMJapIiYyNv6bEK/gT52iPC2UOG/knRlPKX/FFwID6RLywsPKcHM2HCBKSHOXv27BUrVsyYMQOd78kpRCKR3/3udyzLnjlz5pNPPpEnIdU2v9//zjvvIIb54x//KJeIvP322wcOHLj//vsR2xcXFytOL5YsWYIJnrMgffbZZ/HrObWyGTNmoCmxqKjo66+/hhBu3LgR27LKOTDv50BLPymEKRkbeTKa2a2trfIPxdww5kD6jfvoab829E84s1vRGD0OfOWVVyCERUVFa9asqampeeWVV7Zs2bJ27dply5bJKYiiuHz58m3btkEI3W633LIJQoj0Qj0ez/r165GCqFwvtKmpaePGje3t7WgOhBAePnx43759gUCgvr6+ra0tFAoh4wlUY0lJyZtvvimvvbCwEKmJfv3110g97cSJEwcPHkR55ByY95IY/Lsi77+5YZ7n1Qey5lYBISRjI3/27FnTW44JYg5UL6twnuwDehwo10orLi5es2aNr+uRq7wCAL744ovZs2fLpzV51WhK9Pv9CxYsAACg9SrOPHz48BkzZkybNu03v/nN/v37IYRlZWUHDx7ct2/fW2+99dFHHzEMg3gY0XzttdcUbiBnzJiBbCOKi4uROujRo0fRZKjYB+a9VprCLFKOsllhSZIIrHXJnAdaupzGHKiWauQwFogD29vbvV6v3+/Hq1A5B7IsW1hY6Ha7Ozo6kBkeqmjFihVvvfVWPB6nKAoAcPLkyQ8++EDehtdeew1CyLLsI4880tTUtHLlSjRBzZ07F3k0RtPmfffdh3TfVq5cqdC+mjt3LiIIAHjhhRcw9yIzKLfbPX36dI/HM3ToUDRJLF++HH+r8jkw71ehtk6M/MPKGM4jnRhBEDZs2LC26ykuLj516lRHR4fX60WubhoaGs6cOQMhrKur27Bhw5dffilXB9u1axcquHbtWpZlOzo68PyDIELsASFsb2/fsGFDSUkJin/11VexvCcej3/55ZdolTh58mSUAf8/depUxFrBYPD06dM4HvE2sgxcv359VVUVACCZTMotJ+QcmPdzoHztgVEwN0DGRp6MrzRLXU7hOVBT/Gj6oPRmpu3s7MS7MnnDEFfjGHQi39DQoDhpgBA2NDQcPnwY50QBdHShiIQQ1tTUIBsllKTgQDVc+SQL1TvwUaOQc4wgCPLf15zppC/IMAz+9U2fszepzc3NvSmevmwecWD6juBUWycGQ6EbsFehutBoJeTRKlSr+d1x6c8Du/P1LmRrZmfGT24Vljl3Tjn6ko28wmFRTnjoFsJzYG/Wh7rUeyZgF0k9o01+S695k3Nl8lWoLYnJDKOtE5MZo64cmANNOY1QV4pliUigr7loBwAwDIMlk2oiGX+y5aLv7OdAQ12Wc2DeS2LI7AP7jGa2WnFE/Y3mHIM5sLW19YjBR9PnXXl5+fDhw5966qm9e1N+nNBZPGqe3t1JPM/fc889cl5VdEeuHTZs2LA/XnjOXXeJZJterxd5mpB7K1QQUb++//776ki9GAUH5rckRnFKo9fn3sSj6zh7QyGbsmRs5C39KcEcWF1dvW3bth1ZP9u3b1drVvj9/oceeqizs9PtdiOp4/jx4+PxeENDA2K/ZDLZ2NiIewQAaGlp8fv9t956K+JAt9vd3NyMpkpJkpqbm89d0DlmzBg8HDRNI9XNcDjs8/koimppaaFpGh0tUhRVV1eHtDoBAPX19aFQqKWlBa2xJUlqbW0NhULNzc0AAHw8GI1GGxoa0s+0cg60beTxcOgG7FWoLjQ9EzAHVlZW7tu3z5H1gxS+ehJLOfO89957nU4nVjx85plnZs2aNX/+fGQzsWDBgqVLl7700ktbt24VRXHq1KlvvfXWrFmzEAd++eWXr7/++sKFCxctWgQAWLhw4Vtdz9/+9jdFRU8++STLsgcPHhw7duy7775bU1MzdOhQ5FP0vffee+GFF0pLS3mev+OOO84p2UyfPh35knnzzTdnzpz5xhtvDBw4kOd5xIHnriieOHHi+++/P3z4cOx7RlFdX9OJ0dwMqPvcmxjkVKs3FLIpa9GmX1F1muWZImcOr5gDz54923sOhBB2dnaOGTPmt7/97apVqwAAWPv5ySefBACEQqGioqLVq1dPmjQpGAwWFhZCCGOxGOLA0aNHozn4qaeeampqwmqfTz/9tKJrmAPRoZ/b7UYc6Ha7N23atHr16rlz5/I8f+eddyKnlUOGDBFFcdq0aRBCmqYfeOABzIFjx45dt27djh075syZg0/5FdUpOFBTpJRP54FkLHTl7pDVgJoSQ8ZXmkJ90ZSWYyKYA6uqqkzhQEQ5Ho/ff//9FEWNHz8exTzxxBM8zz/++ONnz55taGh48cUXA4HApEmTkHot4sCxY8fWXXja2tqwS+znnnsONxgFMAciXWrMgZMmTaqqqmpsbJw9ezbiQKScOGzYMEEQkPZZMpl88MEHMQeOGDHi4MGDqNo0uiLyVWjeS2LIcCDebCgGz8RXMhyImcTElmNSmLgpHBgMBlesWHHixIlNmzY99dRTPM/LOZDjuMcee+zYsWPLli178cUXOY7729/+tnPnznXr1iEOXLRo0dq1a0+dOoWsbEeMGLFz587169cPHz4cNxgF9Dhw5MiRhw8fXrBgwZtvvqnmwBdeeGHr1q0bN2688847MQeWlJTMnDnz1KlTmzZtkt9mq6hRwYH5LYmxdFmFgJOLpxVQmvhKRjPbUsEV5sCGhoYiI09xcbF61wQAcDqdS5YsKSoqQqcLxcXFCPDPPvtMkqRgMLh48eL29nZkgiRJ0qpVq06ePLlgwQL0TZeUlCxevBi1ShCEjz/++PTp01999ZVi1NatWycIQlNTE+KZWCy2Zs0aCGFTU9PixYsjkYjD4RBFcfHixejIYc2aNWji+vTTT8vKyv785z8DAEpLSxHZ+vr6xYsXl5SUpNkfyTnQPg9UDIfGqy2J0QBFKwpzIMuyyJNS9v+nOcHTqirlaiXNJ65ZJIfINOeBy5YtW758+YgRI7Zs2WKUspwD834VSsBuiJiNvNGv0OjAQwg1j91yoKNZBHMgAZ0YMoKrNAuTeDxeXl5eX1+fQ2flHGjCHCiKotvtdnU9cg1mMnfokjmRl/dL8+PrfWRf0sw2pCCSG3S99JmdZaX5oZkdDAZvvPHGe7oe+WELGQ5Un+RmCW722Wwb+Syx6ujoQG7e0eINydkt+p/neVSXRfQRWaQmYXoVLMtie2ITVqHBYPC+++5TDxIZDuwzkhj0PalhNDfGUht5juOam5sbGxvr6+sbLX4aGhosriFF3qKONDc3Y6UZE1ahwWDwjjvumDZt2jvvvCPfZhQUFBQXfVlVVdXZ2Ym25izLCoLAcRz6aUGvgiDgV47jRFHEmXFAFEVFKZ7nUanOzk70c4gzI7LoFZXCNFEpAADLsnzXg0txHIdpsl0PKoUMI5Dmkbr9XNeD24+rRhfusCyL6kJ9xNlwKZTKcZwgCKFQCNXIcRzyUIpe5aVQw1Aq7jXytoCmHdwdHECdwkQqKytRYzAIGBx5r3GDUaogCHLohK4H00TtxzWyLOtyuVAqwh+DICeiBhx/CfKxPqfsIi/F8zxKDQaDkUgEA44wwU3CHwzuppymomr5V4eGBlETBKGlpQXtDliWVZRC3hNxN/Go4S8cQYcbrBg1+dCrZxFjJ/I0TR85coSiqKVLl15//fX4V7agoGDayHtmzJhRXFzsdrsZhkGXOQUCAY/Hg1zBR6PRWCzmdrvRayAQSCQSbrcbX0mFAhRF+Xw+r9fLcZzb7U4kEpFIBBFpaWkJhULopiiapt1ut9frjcfjqEZUKplMotdQKCSvOhwOu91ulOr1etEry7Jer9fn8yFqPM8HAgGkXuh2u2OxWDAYdLvdLMu63W6fz+f3+91uN8/zHo/H6/Wi9oui6Pf7fT4f6lcikUB3XPE873a7A4EAKoVS/X5/PB5vb29HV2EFAgGUDfUdEUel5ERCoRDqJroCNhQKIWqo2eg2L7fbjYDC3WxqakKAS5LkdrvRlWA4FelGIoQ9Ho/b7UbUKIqKRCJ4mOLxOOomx3Eejwe1Hw8xunIM0URYIUlBIpFAwyQIgsfjCQQCiCZCEn0bbreb4zi/3+/xeDAIaNQQkVAohGiGw+GOjg55KeSvCX0hDMMEAgGv14u6GQ6HA4GAfNRQS1D7A4EA+gbO3TEmH7VYLNbe3t7Z2YlSg8Eg/kLQhWcIHI7j0GeAP040uOiDj0Qi8g8mHA6jURMEwefznVMkYBgGz4d4vWOMA3ExAMBll12GL1JMrUI/vAxCgDNYESBzIp/mdNWsTpE5kbdUJwZDQcBsOhKJMAyDa7Qo4Ha7cxB1GmqMCftALEOPRCI//OEP8RazoKDgzLvfga0rDTXIaGYCg22fBxodFAIqRKFQiMDV4mhhYrT7hvKbwIEnTpyYOHHim2++OXz48FmzZuHfjIKCgv2LC+D+XxpqkNHM6jW0UQoZ8/clnRi8R8jY695kIDAoCif2vWltmrLJZBJPMGmy9SbJBEmMXvUFBQWffvS2VPTPINGgl6f38fYcaAhDS/3E4JbYcyCGImPAhDlQr46CgoKVK1d2bH8EOG6DQNLL1st4+0TeEICW+krDLVEreeIkswKxWIyAOhSS5ZjVZk061nqtX7ly5cm9S+Hm70HLpkFLVY0RZLaNvOankyYyjWFOmlKGkiiKIrDWDYfDeFdlqHnZZ7bWRn7lypWO0pLYlqvhqWeyb5OhnPYq1BBc9irUEFz5IYnR6xJahTocjhN7PwJF/wBpC2/t0WuDHW8jkI8I5HgeqOgq5sD9pbvpzT+CtT2ud1JkzvmVwJZDEIQ+cx5YX1+fM9TZFySwMCFzHtjZ2Wn1KtRySQzy1lO16xWw4wdQTGY/ilnmtCUxWQKFslnqrRC3hMDPItLmwTVaFOgLkhjEgQ6Hgy7+ITg703SkCGzHJUkioH5BRjObgOAK6amaPtAKgkgZVRFp+mt657+mVGfteWBKEnPhad7xV7DnKlMaLSdCYMFj68TIAc8mbJ8HZoMSykNoFepwOA6VbBKLvwsDZdk3LpucBA6FkHlENo3pTR4yc6DceKU3rU1flsCSgcwcSNN0fuvEyOdAh8PRtONvcNd/Q4lLP36GUsloZhP4USejmY0dSRgC2WhmAmbT0WiUAJ97PB4CkhgLfaUpOPDovrWg6FswcsroiKbJT2CwbRv5NPhrJhFw6hEOhwloZnd0dFjtD4rcKjS1HywtCW69FR4bojlsuUWSkcSoLbhya22aUmmcAqUpZTTJ1sw2hBiysTZUxGhmcpIYJJE5XLJBLP4OiJYbbaheflsSo4eMZrytE6MJi15kH9GJuSANPf83uuV6cGakXp+NxhNQQRRFkcBuE/k7MNp9o/ktvUceN4aAvCeRSBBYmIRCIav3gdbrhSr4z+Go2P0W2PbvZllLkNkHEvhwKYqyessBIaytrcV8Yl2gz+wDXS6X1RxIdh+IuDGlq30drJpsyhdgr0INwWivQg3B1TdXoQ6H4+yuSXBnP8hHDcGhmZmAc1jk1kqzdhMjyUhiCMgPIYQExGNkbOT7oCQGzYIHS7aKRd+Bnu29/4LtOdAQhvYcaAiuPjsHOhyOup3jwLb/D0q8IUTUmcloZveZE3kymtkENue2jbyaF5Qx2DpJJYtJRRwu+VIo+j+g19NgPB5XVmz2e1+ShRK4itTq+2HQ8No28pk/8/Qc6HCUerbdDQ4NgqBXDkXtVWjmkZDlwN5cZXHmBwksGWxvhZmHLRMHOg6U7pCK/hGGT2amZeewEfgmIWCyjbzmKhRFBrb+Cp74S2+wJWAMSsZGnsx5YF1dXW/QzrKsz+fLMmfO2Wwb+czQZZwDHQ7HmT3vgG3/BgUqMzmdHGQkMQSOmPvA/YF4iAj8LNqSGIy2biAbDnQ4HJEtPwXH/5LzbpDA0ZNtI687xjoJBPTFyNgH9ikbeb21aOXuGWDzd0HSozOaGaJtSUwGgHom2+eBPfHI8NaXzwMxQx4o3S4UfRc0f5gBDJ1kAj+3fclGnoAiO4SQgOMCMnNgX7ORx1ynCFTungm2/2duSmoEthw8z/cZzWxbEqPzS64d3Uc1sxX853DsL93NFv87zGkaJKB+YdvIa3+e+rEEBFe2jbw+/BdSspTEpPixtLR9+59A6S0Xihr4S0Yzm4C8h4xmNgHfKhBCAoMiCILVdkNIxbxPeWpSTX7dEWUlxXzxvwDfPgPM15XVlsQYQsyWxBiC6xshicFc2LH9UXDwLkMAQQgJiBZEUSSw20wmkwR+1AlsaCGEkUjE6DgazW/byGdGzMAqtIsLj+9dATZ/FwIxM2lZDjL7QAIfLhmdGNtGXvbtZA5+UyQx56fB0lL/1l/Dow9lBkaWw16FysDIHLRXoZkxkuX4Zq1CHQ7Hqb3vwqJvwYSB+33U3k5lAJoTBAAQEC2QkcQQOD6FEBIYFFEUCSzaeZ4nIIlRV0FOMxtvAlFgf+luoeh7oG5O9qxjz4HZYwUhtOdAQ3Dl2RzY0dEh15M2ug9ETHh67yKw+XtQZLJEioBjPEEQCPA5wzAEftTb2tqyBLY32eSfQW/opCkbj8cJzOd+v9/qQTHtHvn9+/f/9Kc/nTdvHkYtNw50OBzU5v8G9fMxnfQB20Y+PT6KVNtGXgFI+te88RfKcdwzzzzz4YcfmsKBTTueBvtuyNJagsDs1JduL7Nt5NOznCI1P+6NAADMmDFj27ZtH3/8sYIDX3916pIlS7744otSI4+jZLdY9E9C23qWZQVBYFlWFEW265EkCUXyPI88ybEsy3c98mwoFZdCAVEUUTwiwvM8x3HqUigVxyOHqrguQRBQKZxN8YoaDACQx6NI5BUbdQSlIj+IuJvoleM4FFCUQkUwEaSajFZiCARUStFr1GXcHZ7ncQtRKQwOahhKxVWjVEEQ5IALXY+6JYqqJUmSd1NBhOM4+XBgEHAphLAoinIiXNeDq02OKR4AACAASURBVMalcNWapTAIeNRQDCrFcRwKoLo4jkPZMAjoVdFg5C4RA6seNUQTf2aIiAJ/VLV6oWtMEtPa2jpy5EhBENQcWPLYf299cfDGjRtLSkpKS0vx//JASdeDUnF86/a/iDsvpxMRnudpmuZ5nmEYdL8XemVZlqZpSZI6OjpYluU4jqZpQRDorge/olIoHgGKStE0jcYVl2IYBtEURZHpelApSZISiURTUxMAAJVKJpO4JSgnpskwDGowMilEWzt5+5GZRTKZRA1DrwzDcBwXCARw1SgekcLEFaVwryGENE2jA33cHdxC1Cn8WlVVhcDB3cHg0DTNMAx6xVXjVww46g7KIIoiKoUBR/i7XC5UI8IKd0dOJJlMYsBRKUxTDg5iFTkIiGaw60EjgupCY4GaJAgCyoa6ybKsYtRQg1HmZDKJAgr8OY5raWlJJBIIBEWDk8kkileUwt8qSlVUjX71UHcYhkkmk4hFFXOvMQ4sLCycMmXKvHnzHn/88cGDB585cwaRKygoOPnBK9SEG5vmPX1w9zaHkefYvk9g8T/B+FlFy9SvBNQvBEEg4HaBjI18a2urGkPTYwhcs0HGRt7n86knKHPhMk0SAyFUz4FOp1PyNtHTB0bG/ezI5nUOR2n2bOjedi848KuMu0ECOtNkbOTJnAf2mXvkyfjMzjMbeU0OhBAClmaWPBMbc23V8lez58AjJZ9LRf8MMl33aUtiDP0k2+eBhuDKs/NARd8KCgqcTieO5I9sSIy5tm320AN7d2bFh6X7qM0/ARUTMAXNAAFzbLSN0azdxEj7HnlDYNo28pnhUnAghFD0NNAzB/levuvYpk+yYcITe5eBLf8C07qQsefAzCMhy2HPgTIwMgf71ByIu8ssejwx6ooT65c5SjNvC6NbroflY3FZdcC2jVBjkibGto1IA446yeVyWX2po7X3B8pXobh7QBL5w+sTo67smPmwo2Rv+smwbtd4uPNHuKw6QEYSQ2CtS0YSY98jr/6E0sTk/e1lmhyIOiw2n6am/so9/b6jxZ+lYcKDpdvZ4v8L2tbowWSvQvWQ0Yy3V6GasOhF9s1VaHdvAWCWPhsd2//kF4sdpSV6fFi76wWw7T+Ajq62bSPfjWcWoY6Ojixy9TYLgUNaMjbywWAwn84DFeOmlsQoMqQOKiSRK1mZGHlZw8Ln9baFh0q+BEX/AKLl6uIQQnsfqAmLXqS9D9RDRjM+723k06xCuzsMgNh4kpp8u3fqwLKdm7VmwtKO7X8C+++AUOOeMzKrUAJTRyKRsHrTDyG0NbO7P7wsQvmhma3XkWzmQFxWomPMu09Exv/s1Lp31ZNhWUlx6tZrvwPnxwEC1utI4xnXaFGAjCSGjLdCAuIxQRAI/GCRkcRYaCOf1Rwo+6K5XUupUVecXTpx/749PSbD0pLolv7g5F9lec8HycyB7e3t6qrNjSEzB9qSGEOj1tclMSowAJDE9irqxZvcr96rYMITez8Em78D+ZiikC2JUQCS/pXAcroveSsMBAJ9XBKj+blIwQ5m8VORcT89+cUSuTJ3cGsBOPmkQlfbtpHXxFAvkoyNPIGfRfseeb0h7o43tA/sLoZCksRueJ0afXXt4hf2Xzi1r9o9HWz/TyAk5JntVagcjYxhWxKTESJ5hm/cKlTe+ZQeqbeRKrzKO+23F2bCktQ9Z3VvK7LZrzYCfQwBYxa6ep3v1Rx4gagUaGfefSL8wk1fF61xOBxVu19JeVLjQhfSCZ0HEtg+kfGZffZsZqNnjG3OAfvupOyhuwh6odk3DuUEXJL9/NVE4VXVH7x8qOQrsei7sPNLTISMt0IC5/5k7o0gINSFEPYZb4XfUEkM5i55gD+xhZr4884Z97dtfgzsuQYCCaUSOHqSJMnWzJaPRcYwAU+eZGzkk8mk+rAuY/cNZQAAqMWtl9AqVN4ZKeqlJhdEx/cXP/0OcG1CSbYkRg5RxrB9HpgRInmGb7okRo4FCoNkgtuygBp9GffFn1EMgdlJkiQCRj0EriiAEBJYtEMICWjeID+F6i/E3Ji8v0feqE5MlvDxJSupsT9hPx4HkpQ9B2YJGspmz4GG4LLnQF24pIPDqbE/psZcE26sVJzR65bJNYHnefv+QEPg9RlZ6DfDNsLQ2OLMvt3gq28nP3iCGn8Dt3sZjrYi0Jc8NRFQIYIQEtga2J6aMn/qppwH6lYjsnDvdbDmNd+Oj6ix17IbXge0UmVUt6zBhL50b4S9CjU0+PYqNC1cwTJY/M+JYJPkrqdn3ENP+5Xka05bIMdEURQJHHChuxBybGLWxWy90KyhSmUMh8PqowJDFDJmBgCozawu0dMIZWdEBu74L6lxScrWnmeZhcOoMdfwJ7eZvi2094FK5DO92/vATAh1p+eBTkx3YxUhAGDju3D35edt5wHgyz6nRl+VXD4SCJwib29eeZ4noJVGxj7Q1sw29CV8g2zkDeHSnVkShG3/BVs/wTGiq5Z++ZfMov+RXKYpQNo6MRjeLAMEFJVsnZjMY2GtJOZC/QHHX2HKhUyPh3n/SWrMNWJHNZDOK6/1SDb4YktiDAIGPR6P0SJG84dCIZqmjZYymt+WxGRGLO6rTt1zxnrlWYEocCUrqcIrk6smYA1SeQZDYVsSYwguCKFtoZs9YvksienqZeo6LucoWPpzNacJDcepKbczC4ZKwV45yexLHEhgdrI5MHv2SwkR81gW2tXRlFZa+HhqGoxVqHsOBJ555zFq4s/FhuM5K7n3pVWoLYlRfyRpYuxVaBpwZEkAwO3/AU8/K4vqEeRLV1EjL+P3fNgj1n6xEbhUEciT88Au+M5rZseq4eZvQ0rnRB4AseUMNfk2Zs5DORxU9KU50NaJMcR09hyYGa7zm36JhyU3wrMz0hSQYsHUinTSrULVfkOn9qIoErgYnYyNPAEVczI2UH3m3oi83wd2KwG3r4E7/gtKQhomhBByRXOoUVdwu5ZlPxna9oHpIVWn2vaBakz0YvLJRl6zD932gZIAd18Ba6ZrZsORKafA7npqzLXMgmFZzoT2KhSjl2WAgMTVPg/MPBZkTuS750AIYe2bcNdlUMqskib5WpglT1OTC8Q2DQmqom99aQ4kcK9YX7KRpygqZxG64ivSezVhDkwmkzt37ty2bdv27dt9Ph+uiQwHds+BKbs0b0oeEzmF25AmAEQh+eFIavRV3L4V6SdDew5MA6Nmkj0HasKiGZlBM1sQhEQikf5nIJFItLa2QgjLysr69euHbUDJcKDSj2DDO3Dnj9Wn85qdhxAKzaepMdcw8/4EeFbzdjQIoW0boYeeXrxtG6GHjDo+Awc2NTXdcMMNgwcPPn4884l2LBbr168f9khJhgN7rEIhhHRrahoMHVV3VS9G8jXTM++lX7lT8jRo5pEkKaV5Y/HD87zVpmhk7lTpS6vQjNNP7z+KzKtQSZK2b98+derUAQMGLFiwoL29XT0l0jQ9d+7c4cOHL168GKcWFBSMGjXqtddeKy4u9ng8DMN4PJ5EIhEMBr1eryAIXq831vV4PB5BEDweTzAYpCjK4/HQNO3xeLxeLwrQNO33+30+H8dxiEg0GkVE6urqwuFwLBY7X4W7k9p1u3B0GHpFpZLJJHqNRCJer1cURY/HE41Gw+Gwx+NJpbY1dy6fQI2+itr7MceyPp/P7/ejqnme9/v91dXVkiR5PJ54PB4KhTweD2pJoOvxeDw8z3u9Xp/Ph9ovimIgEPD7/ahfiUTC7/fLuxkIBDweD2pJIBCIx+MtLS2CIPj9/mAwyPM8BgERR+AgIig1HA4nEgm03vN6veFwGFFDOHu9XpZlUTe9Xu/5bno8p0+fRlih7kSjUQROMpn0er2414lEApXC+EejUdz+RNeDe43aj4fY4/E0NTV5PB6WZRFWqGEURWEiXq83GAxGIhGUzdP1oO5wHBcIBHw+H4KOpulwOIxHLRwOI5per7e1tRWNCBoOf9eDxoVhmGAw6PP5UDcjkUgwGMR1+f1+BALHcT6fLxgMIhBYlkWjhhoci8Vqa2vdbjdKDYVCqMEcx3m93lAohKDmOM7v9wcCATQuFEWhwUWlotGo/IOJRCKom6IoorFmGEY5i0CoPJEHADQ0NHz22Wc333zzAw88MGLECM054cyZM5dffjn2h0dmDtTwI8i4uk7ntSe0ND9a3P7V1KTbmHeHgyQlzyaKIu6UPN7cMMdxBObAHttmczsgo6b5ecjSTQgyDEPg8tZoNGr1oGQ+D2xtbb3lllv69+//9ddfMwwjiuLixYtXrVqlRhEAMGjQoDNnzqAkMhyo3Aeiug/eCc+MULcwY4wUD1GFV1Ljb5D8qZ0teux94AUksv1r7wOzRQrCDPvA6urqJUuWnD59Wv5L0NHR0dLSguuora31eDwAgBMnTvzwhz/EnkjIcKD2j7q7GG77d9xCQ4GUU+BNs6jx/fn9q1FBWxZqCEAIbftAA4Bl4MBsKNXU1Izrel544YW6ujpchAwHal9RACS4rz+snoYbYzTA719NjevPrp8BkglJkggoeQiCgLfQRlubfX4sqc6+SA451RubHIikL0LGWyHDMFYPSmZJTHog0qSS4UDtORBC2Pox3P5/IRdO08L0SZKvhZ5ye8ofaaATC3jTF+lNKhk/MbZmtqExsjWzM8Ol66qAC8Oif4DenZlJ6OcAHMMsGJqYcGNit+WWTWQkMdrbZn0EckvREI/lRki/FBlJTCwWk++/9JuTe0pmSUzOtMnMgenEbo2L4Pb/gkDMuQuoIHfkS2rU5eyGGYDtISPtJVlFcTL+Qgloq5CxkadpmoA/qEgkYnOg4kNVvuquQiGEbCAlj5Fd96ksnN07z/OtR3bT035Nv/F7KdCeXSHDuexVqCHIbM3szHCRmQPTtgPAw7+HZXenzWMgMeUUeNTlUnu1gTJ2VhsB4wgoT+SNU0iVIMOB6ebA1DToh8XfhpHTuXUBlcKnEUASuV1LUy7YPh5nuojMngMNjZE9B2aGiwwHptsHojYeewweG5K5ufo5FL7SRNdZauLPk0ueFjtr9QsZTrH3gYYgoyiKwD7Qvjci86DoykJx0cABuPX72RgN4hKKgCiKSgeYQGLeG06NvVZ0nQUXbrRXlDL6SkYz25aFGhoXWxaaGa4Mq9CUQ0YJOu7ozTSIV6Hy1gCR5x2rqFFXsF/NksfnHLZXoYags1ehmeEiswrV1olRtK6zKHU2yLgU0Vm+6urEACCcPUS9dEvKvJCJZ0lNL5utE6OHjGa8rROjCUuPSDIcmHkOTNnhJuDm78C2NT3al/WL5hyISwOWZuY8TE26LeWCrRcPmTnQ9thraIhsnZjMcGW7sfHtTZ0N5nQ6n41tBLfnQ2rk5dzBtUDM4KxNr0sURalvctTLnHN8ba2Z0iO9Zti2EXrIqONN0MxWE0UxZObAzJIY1BogwV0/zm0a1JDEqPqccsFW/zU14WfMwr+oErOK6EtaaZkF1FlBki6TrZWWDh2URoYDs1qFogY5R8GDd2ZutypH+lWoPLsUcjELhtEv3SI2HJfHZxMmswq1NbOzGQucx16FYih0Awbshtgg3PxdGC3XpaWTIIqiAaMeSUwuH0UVXsntXW7ooILMaQQB598QQgKa2clkUhByXPDrjLNGdDweN131QlFN3lsnZbsPRP0+8xzcf3t634QKgHLwlZbSdvc0UCMvYxb9j5qaXoy9D9RDRjM+HA5nuwHRLJ9dpMvlslozO+/3gQZWoRDC8ImUUJSPZYf/+VzZr0LlZCVvE/PuE9SU28Xs7tO2V6Fy9DKG7fPAjBAR0gs1Zo4NADw4EB4fmrn1shw5+8wGPJtcUUiNvoo/8JmMnnaQ53mrFzy2t0Jt6PVj88Nntl77LzlJDGpo5GTqdD5hQCif2xx4HhYABOduavwNzNxHAcfoYQUhtOfANOCok+w5UI2JMoYMBxqbAyGEIgu3/gusm6Nsrv57znMgJikF2qmJt9Cv3CW6u/3o4FQUIDMHEnC72Jc89tpzoOIr1XhV6kxrZFFFebbBbf8GxaQqQTvClPsDAUtxxXOpMdfwh77QrMa+P1ATFr1I+/5APWS648nMgcYkMbh1e6+HtTPxW/pAr1ahPUlz29+jXrwpuXIsYOmeKfYqVIFHhld7FZoBIGIWupnboZmjeircc41mitWRKafAIy+jxlwjJUJW12XTz1ME+pCNvN4I8LHU6bx3t166PN7EORCRBUw8uXIMNfHn/IFPcUVkJDG2ZjYGPJuArROTGSUD2ioKYmdnpLz6iqwiWv2qsJFXZ8gthi9bR42+mtsyH1k2kbGRxx7Nc2tzlqVy2ZxnSfpCNttG/gIS+n/J7ANzV4BK1MHif8pGSU0URYuunhXbquhJt1FT7gB0lAwHyq9Y1R+63qbk/rOYdc22t8LMUJHhwBwlMch2/utH4YHfZOyJ6atQWY0AcEnm7UepCTdGDqwnYJ1ka2bLwM8ctFehmTHqlbueRB3c/L2UqlraR5Ikw6eOaQkqEyWJ3786MeoK9tNJQOCVqaa+575kMNKMXg1KdhXxPE/gByuZTFqtqJT3mtm5z4EQQkmApbfAqsnpB53n+Y6OjvR5ep+abC6nXrqVWTBM8jT2npoeBVsSo4eMZnxHR4fVfJ73mtnGbCPUMEeccMv/Tu9JLRsbeTVhozEp2whBSL7/JDX6ainstuin17aRNzQutm1EZrh6a44NJLj/F7B8TJqaLJKFKmpEkhggCtz2d6nRVydXT1RkMOW1z9wbYctCM38Pl7okBveg8T2480f4TR2wUhLTXVv3eSAAKYcXL92SXPyUFDR59WtLYroRzyJkS2Iyg5SVt8L0ZAQKbv1X6N2jl0uSJALGoArNbCBwzOwHqRd+KnXWmrgiJXBSByG0VnDVNU5kvBXSNG0i+JofWN5LYnq7D0SotH6SstwF2l4PyO0DxR4XrQFR4MvWUiMv50s/0Ry8HCLtfaAh0Ox9YGa4eiULxeSTnbDoWzD0NY6QB0ivQmV1AyAJp7ennAIv/AuQevCnLJeBoL0KNQAWhPYqNDNc5ix4AIDH/6J3Ot97+8DM3YAwjc9sEA8xbz9CTblDqD6QDak0eWz7wDTgqJNs+0A1JsoYc+bA1NkgBzd/G/pLlBVAeBHnwO7GAMBumkWNuoJzrM7ZKTCE0J4DuyHNIpQfc2Bra+uQIUPuvffeIUOGyM8GyMhCzVS/2P8LeOIJ9bhYrhPTVaUoiuk3/UCSxObT1JhrmPefVDcyyxj5AGVZJIdsJojHMtVq68R0I+RyuU6ePMkwjMPhuPbaa7HeExkONHNZlfKk9j3IR7v71hUSBMEceY+Cbs/XLG3kJU9D6uK0l36epQu2npWkNjaKGCtew+GwFWTlNOPxOAE+DwQCBLwVqh2f5mgf6PP5+vXrh5eFBQUFJ0+etFpqbDJvHBoEjz2mcChKRiste3+hQOCZ9/5Kjb6K27dC/lFmEz579mw22XqZp8/cG5FnWmmffvrp4MGD8eAVFBT84Ac/6Nev3/jx451OZyQScTqdHo+nrq6uoqKCZdny8nJX1+N0OlmWdTqd9fX1Pp/P6XQGAgGn01lRUYECfr+/pqamsrKSoiin0+n1etvb28vLy1Gp5uZml8vldDpDoZDT6aysrHS73U6nMxwO19TUVFVVRaNR9Nrc3FxRUcFxnNPpbG9vb2lpcTqdKLW6urq1tbXl0Bxpy79WnXZUV1cHg0Gn08kwTGNjY2VlpSAITqfT7XY3NDQ4nc5EIuF0Os+ePVtbW4uyVVRUVFVVofZzHFdbW1tTU4Na6PP5qqurnU5nMpl0Op11dXWoFGpJbW0tarAoitXV1XV1dQzDYBCcTidN0wgcRAS9th7aQY28zP/GHyGEFRUVTU1NiBoCoaKiIh6PO53Otra2iooKp9MZi8WcTmdHRwfCCnWnvb0djUs0Gi0vL8e99vl85eXlTqcTgeD3+9va2vAweTwer9eLGlZeXo7bHw6HnV2P3+9HNTY2NjqdTtQwn8/X3t6OiJSXl9fX17e2tjqdTtRONKxOp5OiqNra2srKSoRVIBCQj1pTU5McfzQiqFR1dXVNTQ36QsLhcH19fVVVFepma2srKoXqqq6u7ujoQINYWVlZV1eHwInH4/JRc7lcdXV1+AtpbGxEDU4kEuXl5U1NTQjqRCKBPgM0an6/Hw0uQqOtrU3e4JaWFgQdx3HV1dX19fWRSETt9z2XObC4uPjhhx+W78rQKhR0PZgtTQ/gKdccymIydTrfsEhO7ZKQxMgbdCEsddbRMwfRr92d/YrU1sy+AF5Wf/NjDgQAlJaW/ulPf1KYsZLZB5pvDOraBLd8H/IRPESm+ErD1PQCuVnoApZJfjaFGn01f3STHmV5PBkbeTM35/LWy8Jk9EJDoZDV+8DUHQc9NTEghMbmwI6OjquvvvrUqVNoSYm3lfnKgVwYbv9P2LEOD/elzIGokXzJSmp8f3rhX4DA4WZrBjo7OzXjzY0kw4EEJDH5wYGhUOjo0aNfX3jwETkZDjR5FZqynQew+hW493r8UV6yq1DcwtRxZshFjbqCfvkXkr9VHq8I2+eBCkDSv+bHeaBeH8hwoHznqdcSw/EClbpw17MNFbxEzgMz9gIwCfazl6kJP0uzIsVnRRmp9SaDJYPSs0H2eWBPPLTeyHCg+XMg6svJJ+HRB1GQzGlEt3WSFpjZx3G7l1Hj+3Ob3lI7BYYQ2pKY7JGEEOaHJEavS2Q40OTzQNwZuhUWfxt5tr9YthG4LUYDqRXp+BuoCTcCWqldYNtGGALTto3IDJdVBm8pXe1hsGxg6q4XUQwGg5mb0rscWerEZFkJSCaY+Y9Rk27ly7pFShBCl8uVJYXeZFNIxXtDSq+sfW+EHjLd8WTmQKtWoRBC3+6UrjbTnheSmG7ccQgA/uBaqvBK9qs5eEVqS2IwPNkEbElMZpQs3PRLHNz+H7BhARlJTBrrpMwo6OcQW87QL/+CfvMPUtSHbinUz2taCoFzAlsSk3m0yMyBVu0DUf8ip2HxP/HJKIHFW/Z6oZmhl+cAAPAs885j1Pj+YluFvQ+UY5Mx7HK51MflGUsZypD33gotXIWmTtlYuOu/+bNvEzApMEsWqjn8KRdsWxdQhVd2Lh4FJEkzj4mRBDyy2beXZR4vMnOgtQseAODZmWD35QQ8NVm0CpWPk9RWmZhwI7P4acnbJI83PYy1MkynjAlabXODKrI9NWHAdQPWzoGpaVCAW7+fqFmq2wKTEiydA3Ebq6sqmbmDqXH9pUQ4vUEwLpJDwJ4Dswct71eh1s6BCMjKidBxa/aY5paTwBwIIYzH40DguF1LqMKruK9m5dbUjKX6zBzIMIx1v1MIxrz3Vkjg6ElKtKTuOUtaq9PMMIzVm34IYWtrl9YoAEJFCT3lDubdJwDVbQWSkbWyzBAKWX49cCwWI8DnPp/PatsISZKwMQOG15htBC6mCJDZB1orC+3qEs/z4dLH4N5rIbBQhmGVLLTnqMhloYCJ02/+gZp4s9h4UuEWoGchw28EbikMh8MENue2TozhsbeqQPRMl0PRI1bRv3h0+X0rqJGX8Uc2Xrwm2DUrEcinOdBySQzyVtjWAnf8//DMSCVU5r2TkcSoNbOBJAnle6gJN6ZcsJl0UNFnJDG2ZnbmD9x8G3lVnectdBMNcPN3IWOVXmVuNvKqxmaI0LORl/xtzDt/pqf8Qmw4loFEFslkLHQtVIe60Mf8sNC90FrlXzL7QAKDLQjC+Zl2/y9g1RRlP016ZxjG6k0/hLCtrU2vvUAUmGV/pwqv5A982stT+z7jrdDv91s9KHkviSG0CkVuNttWwx0/0PuCexlPZhWaXjMbgC6nwIVXJpc+05vu9JlVqK2Znfkz4HlrL17vclsBzi94RBbu+glseCdzs4znyOgz2zhJjRJqx3jqTGJrOTP3UXrab3K+T5vAoAiCQODwhuM4AueB6ipsSUyPz7KHdVL9PLizH7Lc7ZGp1y+XwhyIOwE4Jrns79SYa1IyUgBwfJYBew7MEqiUzpUkqX+wbA7sAWAPDmSDsOgfINXSI4cZL5cUB6IO8ceLqZGXMe/9Vf0jnb7HNgemx0eemvccaJWNvAykHjbyAMC6t+Ceq2Xp5gTJyEKNmlmJrrPU5NvpmYPEjurs+0lAPEZRFAGFRFsWmnnQiUpiUHOSHrjlf8NAb6/yU/TtEpwDUQtBMsGum0aN789//ZWizXqv9hyoh4w6Pu/nQPUaWt3JXsYAAHr83AIppah9+rleklUUJyOJyVmTi9u1jBp/A/vpS4BjFC1XvxI4qRMEwepzAgghy7JGV+BqNNLH5L1mNhm90I6Ojh44Jt2w+B8hG+gR2bsXMnqhud+dBIAUaKMKr6InF0gxf/q+2ncnpcdHnpr3cyABL2ba3grLBsKTud+kKR8DFCbDgXV1deqqs48BiXBy+Shq0m38oc/TlCKjmZ3NyUqaRmaTZGtmZ0apx/owc/ZcckiSpLF461iX8qttXFKv1wIy9oGmCK64fR9RY6/jtr8LkgnN7hCwG7Jt5DWR7xFJRivtIkhiUC+BBHf8F6x+tUefe/FyyUpiNPskddZR466npw8EjAYT2pIYTdA0I/N+FUpmDtRe8LR/mrpsUHXrtSbQGSPJzIEmKrIDJs7MG0y9dItweheEPU7t+8wcaNvIZ/xuIQEbeUEQtDc2XChlNOjbm7mVWeQgYyPf0mKqLoEkcjvep8Zcw22eB/jui9NsG/ksBvx8lrzXzCYjidG9dg8pqQEhe8T1cuaFJEaz8WLTKXry7cyix6XQedMt7R8szcK5Rmpe/pwrMd1ynZ2dVp955P0qVBc8MgkCBbf+G2z9mExtl3ItqWsqxl2PmfBSbuql3zZbL7THGPXQC+2R0nXd5+Hfw8P3KaJzeCUjiVHbyOfQVM0igGe5zfOpwqvYL9/0N7l7WgAAFCtJREFUetyaeUyMtD32ZgaTjCzURNGCXpcy3GKd9MDN34HxGr3iWcaT0QvVs5HPspEZsgEg1B6mX7qVfu9JKWiVMwHUBjL3yIfDYatXoSbcI683KmQ4kIwkJoOSx8mn4JH7e3k2mJeSGK2xB0kq/NrvqBdvkoId1ql0kfFW6PV6rebAvJfEXLTzQPnHFzgIt3wf8nF5nNEwmVVoeht5o23Wy+/paEvpkRZeye1eppenl/H2KjQzgGTmwIugma3uuiTAkpugs1Cdkn3MJa6ZnX1HIIQp03JJEo4VU5NuSy77ezbK3IboQwjJ2Mjnh2Z2NBp96KGHbrvttgkTJshxJMOBl8QciK77LP5fMOmVI2Ao3KfmQI8H9V0Ke5hZf6Qm3SY2nujlKl0Bpj0HdgOCzCvWrFnzjeZAkYFb/wV2FnXjYjDUJzkwhQGQ2C9epUZeJhzLHRw1ljYHKjHR5MDDhw9Ho1FLdZQuviwUIQEAdK1PefXN9SEjC9VVLci12ZrlFDbyqRVplYMaf0Ny6bNmOQW2beSVyGty4IgRI6ZNm7Zp0yaXy8UwjMvlisViPp/P7XYLgtDZ2RmJRKLR1A21giC4XC6/3x+Px10uVyKRcLlcbrcbBRKJhNfrdbvdHMe5XK54PB4Ohzs7OwVBqKmpCQaDiAhN06hULBZzuVw0TXu9Xo/Hg6qmaToYDKJSLpcrEomEQiHcMI/Hg15ZlvV0PRRFuVwunue9Xm9lZaUoiqj9fr/f5XKxLOtyubxer8/nQ9ncnR1gZ7949WLUHZ/P5/V6Ub/i8bjH40HZXC6Xr+vBvfb5fLFYrKmpSRAEj8fj8/mQPRTqu8vlQr32+/2ICHoNBoOomxDCzs7OYDCI6sIgJJNJl8sVDofdbrfL5UKvp06dQlih7oTDYQQOwzCdnZ0ejwf1Oh6Pd3Z2ulwu9JpIJMLhMG5wLBZDw8RxXGdnJ2o/AhyVamhoQDUGAgF0DW0KuuojzNxHI5N/wbXXdHZ2+v1+DLir68E00ReCQKAoCo8a6ibC3+PxNDc3oxFBw+HxeLxeLxoXmqb9fr/b7ZYkCYGASiEQPB5PJBJBpdxut8/nQ/HJZFI+atFo9OzZsx0dHQiiQCCAG9zZ2RkIBBDULMuizwCNSyKRQJ8ESg2Hw/IPJhQKoW6isfb7/TRNq7WOczmR1+RAp9Op5FSz3wmYY0uSlK3+96mnYNnduXWRjCSGoqjcmmeolN6gpO7Tfu+vKafAhz7vpVNg+x555YhcLA68ODbyyt5feOcjKU9qiYYL7wb+ktELzd1G3kBXYJrjUwCAUFlKFV6VXPoskEQjVHvkJXN3Un7cG8Gy7OzZsx999NE777xz8uTJWCuXjCyUgBq+IAgGVEnOjIClN+dwzxlN0wRc0DY2Nvb4kK15yfizKLZW0DPvpd+4V+zM0WY/Go2qF2+m9watY00nKydowom8JEmNjY1nLzx4wUaGAy0V8yCktG3k5SjKw8HDsPifc7jghYx9oEJGIm+4ieFseAMkE8mPx1PjbxCOFyvMC7NpiW0jnxklMhx4qZwHYjwASN31eXwojsgy0GdPI9L2P+XwYvTVzPLngWDs9gH7NCItrl2JZDgQT7mZG5RrDkmSsvlR7yYfq4RF/wvGja2vyMyBBA5vIISGFiYpp8ATbqRn3G3omgoyc6BtI9/9VeuFCFyUJQhCGtGCRsMkLnW3xNnXNZL0o8hoZjc3N+s3wbQUo2bTgIokV4xOObw4uS3LRtia2ZmBIjMHGh3szO1W5UBHl6rotBGdm1IuZEQ2baYeiWQkMfX19T1qteYlt60Bt/uDlFPg4rdBMvORiW0jn3noyHCgdfYvuIeg68GvWQXQbrD65awyd2XKpZbsqV/IabWtDaont0FJWcp11FCjrqBf+y1gYhearP2XDFwEatGsIpcTeTVOZDgwt59bdWvTxKSzkU9T7OxMuPf6NOmKpG+mJEYBQuo2r3iQWfwkNeUO/uiXaZS5bUmMGjplDBkOTCQ0/FUqm9K7d1EUc9lt8rHUBS/Bw1lWTkYvlIAnTwhhb/0CA5BakY69jt2yALC0JoC2jbwmLD0iyXDgJWEj36PfspeG+XDnD2F2ntTISGJM9lYo66s8aMrmXGyvpCb+nJn7KIiH5MRR2JbEqDFRxpDhwEt3FQohpJpg0T/C8DElNFrv9ipUiQoAgIkx84dQL94sNJ5QpNqrUAUgGq9kOFBPCVijQblGSZJk6ICrux4gwUO/g0cf6o7RD/UlzWwTD2lTLti2LqBGX8UVzZGf2tua2fqf0oUUMhx4Sc+BEEKmM+VJLVZ1ARXdv/YcqAsNhGLdEXry7cmlz0jB89fI2XNgGrjOJ5HhQFO2HOk7k8t5IKYIJLj/l7Am8wUv9nkgxkw7IPD0W/dTL94IqAiEqdsKjCkqaRPNEGv7zM4AkAlit8w1wAz+QjNQAKn7rrf+axrBOiKQTCYJHNYZvUc+Q+d0ki3S/wYszW6Zn1qRbluYSCRMXOvq9APa98jrIdMdf6mvQrscpaTslcrHdDdaK2SvQrVQUcUBSTi5lXrpluB7zzBByz1zt7e3W20ylvf3RlzSkhj8/TQsgDt/AMUkjlAHyGhmk7GRt3p2kmJ++o17qZduFTtrc9O/UeOvGZMf3go1mw4hJLMPzGgMqte87OO1b7HOvnzKuyWVuucseDBNITI28rW1tWnaYFYSttI2i6CaTtjXGVs3nRpzLX9wrTrVrBj7FuvMSOairZKZao8chm0jepS+8NKyMnXLktR9yd6FhPN/yUhiLk3bCAUU2bymfPDRFH9iC/XSLcnlo4BgQAk+G/ooj+21PjNWOZ7UZSbcnUOSJBMWb0kv3Pxd6NvdTbdniOd5SxdUqDaLZCQ9uwIJSClZlhWE1LWNkreJmfMw/eqdYvNpRTN6/0rTtNWDgtztKppqa2b3ACRHzeweNFICGXjoHnjg13pCUVsSowQs7bv8PBAIfHLps9Soy/mvv+qlCzZFnbYkRgGIxmt+SGJQwwUKFn8bBvZrdAOmzjys/rmFEBJQZIcQWi2JgRAqdGKAJArle6lx/ZPLntWEN7fIZDJp9aDk/RxIxleaaSYFhwbBY0M0vwYy+8BLxFeaJgKGIjV9pYlNp5g5D9EzB0nuXBxGqhvg8XisPqQ1wVeaut0ohowslAwHGvBWqAcHig99nVJSEzRswMlwYEODOZ9m+l4SOKTV04kBLJ1c/CQ19jrh669y8Bmp6BcZb4Xq+7/yaR9o9YFpagMHANr0K4Ynl1cA4MHfwqN/VJeVJMnqBQ+6V0xdtekxpsGl3zJRFPVmJwAkvmwdVXhlcuUYIKakNTk/BA5pbRv5zKNjkiTmQkUpFzL/ltLY7vnYkpieeGR4k0tiNLOmnAJP+w395h8kd+6ucWxJjCa2PSIJuN/rnV5oj9amXsRk6p6z1pWKBDJ6oRfl7iRFT015zebuJEBFk8ufT7lgK9+bW6W2Xmhm3PLmRF7eFd+e1G5Q6nGITMZGvs+cyGdvI8/tXEKNvS65dirgewAuHxC9sH0ir4dMdzyBTb/Jq9CUkloc7vpvxTRor0K7BzWLUMZVaDcNAMT2amrc9fRrv5VC580Lu1PThuxVaFp4uhIJHD0Z9pmdsdUAwIoJ0FEgz0hg0w8hJLBoN+ozWw5C9mGjPrOlRCi57O/0lNuFk1uyr8XWicmMVV7OgandIJsyGvSX4h7acyCGIpuAgTlQRo7bvYwafwO3432QzMrFnj0HysDTCeblPhD15cwI+bGEvQ/UGWHt6Oz3gYryqWsqRl5Gv3EfYBlFkvrV3geqMVHG9NY1pZKexrsoipb4wojXpOQx4PwtlmRkoWRs5Am4kOyNjTyIB5h3n6Cn3CGc2aWnpou+g2AwqHfqqPGh5BSV9zox+boK7Trph0fuTx3Qdz32KtTQB5zbKhRXAUSBLZ5LjbmG27UE8LqW0/YqFCOmG8gnzWx1J3x7Upa7VOo+IzKa2SaYWal7oYohMCgKzWxVE7KKEJpPUZNuTS5+Uor6NAvYmtmasPSIzA8b+R5Nlr1IXIoDmxanvPtSFAENOzI28sYue5PhkX3QlHvkUxphiTA9+yFq8u2St0ldu20jr8ZEGUNgyyEIgoVuF8LH4ZbvQYEiI4lpbW1VImjBOwF1+ZwlMerugiTFpVywXc1tf0+hR+rz+ex9oBqxHjF5eR7YowcQ7r4CNiywzwMVqKR/NXoemJ4aBEA4vZ168ebkitFSzI8z58cdugCAZDIZi8XkewwAwG233eZ0OnFnrAgAAEyz3NNvH8dx1ipzVbwA91wZi8WsNikAAJw5c8ZqCwwAAAGJq9/vN93aGNAx+o37qJdukUIdCKXm5martwaSJNG08n4oY9ZJ4XD4rrvu+vDDD4cNG7Zt2/lbiCVJuu6666zmQJZlly1bps875qS0trZOmTLFHFqaVEQObvn+wbXPWa2wIorigAEDrObAcDj87rvvanbUxMiNGzceOnTIRIKIFGBpbvM8auy1/N7l51SIJkyYYDqfK9qcTCbnzZuniDTGgUuWLPnss88ghDU1NVdffTVaFoqieO211xLgwEWLFilab/prc3PzuHHjTCfbg2DFhIYPvkMlMlwc26OI8RdBEG699VarOTAUCs2dO9d464yVWLdu3f792v4+jBFS5QaSyH9dlHLB9sn4wmeetPpnkWGYmTNnKlphjAMfeughdDt5PB7v168fWoFIknTttdcuXLjwq6++2rp16y5rnm3bthUWFlpDu5vq6tWrhwwZ0v1uReirD3fN+M6u7V9ZQRvT3LFjR//+/fGrRYGNGzeOGDHCIuKY7NSpU+fPn49fTQ/s/Gz55j9dsfbRq7cVWzsoW7ZsGTVqVK84cMCAAcj7CMMw/fr1Q3dEAgDWrFmzatWq1atXr7EfGwEbAX0EPv/8815x4BNPPHH27FkIU9dc9OvXj8BZkKK59quNQB9DwNgqdPPmza+99tq5Xb7D4fjlL39pteyoj2Ftd8dGQI2AMQ7kOO7xxx8fOHDggAEDkJ60KIorVqy4/fbbH3roofb2dnUFpsR8/vnn99xzzzXXXGMKNU0igiBMmjTp17/+9a9+9asPPvjAotMClmUffvjhW2+9deDAgbt36zrV1myh0ciKioof/ehHaudcRuno5f9p13PTTTcNHDhQL0/v491u99ChQ2+77bYhQ4ZY5J976dKlN114fvzjH1tkgtPS0vLggw/ecsstjz76qPwIxxgHIp1Gufe4HTt2PPjgg9Fo9PDhw3/60596j7gmhaampra2tnvuuUcz1ZRIURRra2sjkUgwGPzZz352+PBhU8gqiEiS5PP5EomE3+8fMGCAItXE10Qicc6F5COPPGIdB9588821tbUURanPuEzsCBI9JBIJ66yHOI6juh6Hw/HUU09ZJEB+/vnnS0tL4/H4+vXrhwzpdiRrmAMV4E6bNm316tXIz999992nSDX39d577zWXoCY1AMADDzxQUlKimWpKJACgoaHhzjvvNIWaJpEZM2bU1NT85S9/sY4Db7zxxrlz565atco6l1Ctra1z585dtmzZ7Nmzm5o0lDk1+55bJABg8ODBX3zxRW7FM5aaPHnyypUrGYZZvHjxxIkTcf7ecmBhYSE+LR02bBima0WADAfW1NRcf/311unfuFyuhx9+eMCAAWvXWnUXV1lZ2ZNPPgkAsJQDp06dunXr1vfee+9Xv/qVRQqDH3/88bXXXltUVLRv376rrrqqo8OY6xdDH2E4HO7fv7912v8NDQ133333gw8++NBDD6FDBNS83nLguHHj9u497x9OPrca6nyWmQlwYCQS6d+/P4FLmiCEjz32mEV8fvfdd6OllKUciEdt69at27dvx68mBjZs2FBYWIgIPvLII+vXrzeRuILU4cOHp06dqog08XXYsGFoh3nkyBH5arG3HLho0aJp06ZBCGmavuuuu0xssZqU1RwYj8cHDRp0+rT5N2Op+wIhfP755y1S9Zg+ffrrXc/tt98+ffp0q0XWn3zyicPh0OxjLyMZhhk6dCgicu+9927ZYsDzktGq77nnHktv2sDyqsbGRjmn9JYD29vbBw0a9NlnnxUWFi5cuNBot7PM39zcvGbNmttuu23NmjWlpd0uj7Isnk02nud/97vfPffcc5u6Hov2NqWlpe+9997GjRvnz5//6KOPWs0b1s2B5+Qir7766vr1699///277rrLolUohHDo0KHvvPPOsmXL7rvvPouklBDC8vLym266ydK1z8yZM5999tn169c//fTTs2fPxt9kbzkQwtQdjjt27KiursZETQ+0tbUhxti0adORI0dMp5/y6ykIW7duxbVYxIEAgJMnTxYXF584ccJqazQI4aFDhyyqBQBQX1+/bdu2AwcOWFQFHuVDhw6VlpZa+mvV0tJSVlaGa7QiAACorq7esmVLXV2dnL4JHCgnZ4dtBGwEDCFgc6AhuOzMNgImI2BzoMmA2uRsBAwhYHOgIbjszDYCJiNgc6DJgNrkbAQMIWBzoCG47Mw2AiYjYHOgyYBeCuRcLlddXR0AgOf5U6dOXQpNstugh4DNgXrI5HF8XV3dzTffTNP0vHnzxo4dm8c9+QY03ebAvjnIO3bsePbZZ//nf/7HOtuIvgkc8V7ZHEgcciIVRiKRn/70p4sXp5zk28+ljIDNgZfy6OTYNkEQhgwZUlVVdfvtt1unS5lj4+xiPRGwObAnHn3ibe3atcOGDRNF8eDBg4899lif6FOf7YTNgX1waGtra7Ees9PptMjtQh8E7mJ0yebAi4G6XaeNwAUEbA68gIT910bgYiBgc+DFQN2u00bgAgI2B15Awv5rI3AxELA58GKgbtdpI3ABAZsDLyBh/7URuBgI/D+03HnquNV04AAAAABJRU5ErkJggg==" alt="">
+Sistem pertidaksamaan linear yang sesuai dengan daerah penyelesaian diarsir adalah : 
+
+<p>A. <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mi>x</mi><mo>+</mo><mn>5</mn><mi>y</mi><mo>≤</mo><mn>15</mn><mo separator="true">,</mo><mn>4</mn><mi>x</mi><mo>+</mo><mn>7</mn><mi>y</mi><mo>≥</mo><mn>28</mn><mo separator="true">,</mo><mi>x</mi><mo>≥</mo><mn>0</mn><mo separator="true">,</mo><mi>y</mi><mo>≥</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">3x + 5y \leq 15, 4x + 7y \geq 28, x \geq 0, y \geq 0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">3</span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">5</span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≤</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">15</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">4</span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">7</span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">28</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">0</span></span></span></span></p>
+<p>B. <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mi>x</mi><mo>+</mo><mn>5</mn><mi>y</mi><mo>≥</mo><mn>15</mn><mo separator="true">,</mo><mn>4</mn><mi>x</mi><mo>+</mo><mn>7</mn><mi>y</mi><mo>≤</mo><mn>28</mn><mo separator="true">,</mo><mi>x</mi><mo>≥</mo><mn>0</mn><mo separator="true">,</mo><mi>y</mi><mo>≥</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">3x + 5y \geq 15, 4x + 7y \leq 28, x \geq 0, y \geq 0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">3</span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">5</span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">15</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">4</span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">7</span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≤</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">28</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">0</span></span></span></span></p>
+<p>C. <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>5</mn><mi>x</mi><mo>+</mo><mn>3</mn><mi>y</mi><mo>≥</mo><mn>15</mn><mo separator="true">,</mo><mn>4</mn><mi>x</mi><mo>+</mo><mn>7</mn><mi>y</mi><mo>≥</mo><mn>28</mn><mo separator="true">,</mo><mi>x</mi><mo>≥</mo><mn>0</mn><mo separator="true">,</mo><mi>y</mi><mo>≥</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">5x + 3y \geq 15, 4x + 7y \geq 28, x \geq 0, y \geq 0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">5</span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">3</span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">15</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">4</span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">7</span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">28</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">0</span></span></span></span></p>
+<p>D. <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>5</mn><mi>x</mi><mo>+</mo><mn>3</mn><mi>y</mi><mo>≤</mo><mn>15</mn><mo separator="true">,</mo><mn>4</mn><mi>x</mi><mo>+</mo><mn>7</mn><mi>y</mi><mo>≤</mo><mn>28</mn><mo separator="true">,</mo><mi>x</mi><mo>≥</mo><mn>0</mn><mo separator="true">,</mo><mi>y</mi><mo>≥</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">5x + 3y \leq 15, 4x + 7y \leq 28, x \geq 0, y \geq 0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">5</span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">3</span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≤</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">15</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">4</span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">7</span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≤</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">28</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">0</span></span></span></span></p>
+<p>E. <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>5</mn><mi>x</mi><mo>+</mo><mn>3</mn><mi>y</mi><mo>≤</mo><mn>15</mn><mo separator="true">,</mo><mn>4</mn><mi>x</mi><mo>+</mo><mn>7</mn><mi>y</mi><mo>≥</mo><mn>28</mn><mo separator="true">,</mo><mi>x</mi><mo>≥</mo><mn>0</mn><mo separator="true">,</mo><mi>y</mi><mo>≥</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">5x + 3y \leq 15, 4x + 7y \geq 28, x \geq 0, y \geq 0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">5</span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">3</span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≤</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">15</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">4</span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">7</span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">28</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">0</span></span></span></span></p>
+</div>
+                <div class="space-y-3">
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q9" value="a" class="mr-3"> A
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q9" value="b" class="mr-3"> B
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q9" value="c" class="mr-3"> C
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q9" value="d" class="mr-3"> D
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q9" value="e" class="mr-3"> E
+                    </label>
+                </div>
+            </div>    
+
+
+
+
+<div id="q10" class="question-card hidden-item">
+<div class="main-txtbox" contenteditable="false" spellcheck="false"><p>Seorang pedagang makanan yang menggunakan gerobak menjual pisang keju dan sukun. Harga pembelian untuk pisang keju Rp 1.000 / satuan dan sukun Rp 400 / satuan. Modalnya hanya Rp 250.000 dan muatan gerobaknya tidak melebihi 400 satuan. Jika keuntungan dari pisang keju Rp 500 / satuan dan sukun Rp 300 / satuan, maka keuntungan maksimum yang dapat diperoleh pedagang tersebut adalah ...</p>
+<p>A. Rp 100.000</p>
+<p>B. Rp 150.000</p>
+<p>C. Rp 165.000</p>
+<p>D. Rp 175.000</p>
+<p>E. Rp 187.000</p>
+</div>
+                <div class="space-y-3">
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q10" value="a" class="mr-3"> A
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q10" value="b" class="mr-3"> B
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q10" value="c" class="mr-3"> C
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q10" value="d" class="mr-3"> D
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q10" value="e" class="mr-3"> E
+                    </label>
+                </div>
+            </div>  
+
+
+
+
+<div id="q11" class="question-card hidden-item">
+<div class="main-txtbox" contenteditable="false" spellcheck="false"><p>Dua resistor <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>R</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">R_1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0077em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">&ZeroWidthSpace;</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> dan <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>R</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">R_2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0077em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">&ZeroWidthSpace;</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> disusun secara paralel. Setelah diukur, nilai hambatan totalnya adalah 2 ohm, dan salah satu resistor diketahui memiliki hambatan 3 ohm lebih rendah daripada resistor lain.</p>
+<p>Cara menghitung nilai hambatan total yang disusun secara paralel adalah <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle displaystyle="true" scriptlevel="0"><mfrac><mn>1</mn><msub><mi>R</mi><mi>T</mi></msub></mfrac></mstyle><mo>=</mo><mstyle displaystyle="true" scriptlevel="0"><mfrac><mn>1</mn><msub><mi>R</mi><mn>1</mn></msub></mfrac></mstyle><mo>+</mo><mstyle displaystyle="true" scriptlevel="0"><mfrac><mn>1</mn><msub><mi>R</mi><mn>2</mn></msub></mfrac></mstyle></mrow><annotation encoding="application/x-tex">\cfrac{1}{R_T} = \cfrac{1}{R_1} + \cfrac{1}{R_2}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:2.426em;vertical-align:-0.836em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.59em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0077em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span></span></span></span><span class="vlist-s">&ZeroWidthSpace;</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.74em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">&ZeroWidthSpace;</span></span><span class="vlist-r"><span class="vlist" style="height:0.836em;"><span></span></span></span></span></span><span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.426em;vertical-align:-0.836em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.59em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0077em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">&ZeroWidthSpace;</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.74em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">&ZeroWidthSpace;</span></span><span class="vlist-r"><span class="vlist" style="height:0.836em;"><span></span></span></span></span></span><span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:2.426em;vertical-align:-0.836em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.59em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0077em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">&ZeroWidthSpace;</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.74em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">&ZeroWidthSpace;</span></span><span class="vlist-r"><span class="vlist" style="height:0.836em;"><span></span></span></span></span></span><span></span></span></span></span></span></p>
+<p>Nilai hambatan resistor yang lebih kecil adalah ... ohm.</p>
+<p>A. 2</p>
+<p>B. 3</p>
+<p>C. 4</p>
+<p>D. 5</p>
+<p>E. 6</p>
+</div>
+                <div class="space-y-3">
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q11" value="a" class="mr-3"> A
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q11" value="b" class="mr-3"> B
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q11" value="c" class="mr-3"> C
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q11" value="d" class="mr-3"> D
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q11" value="e" class="mr-3"> E
+                    </label>
+                </div>
+            </div>  
+
+
+
+            <div id="q12" class="question-card hidden-item">
+<div class="main-txtbox" contenteditable="false" spellcheck="false"><p>Dean menjual alat-alat elektronik di Toko Sinar Surya. Setiap minggu, dia menjual lampu LED ukuran 30 mm dengan harga Rp 98.000 per pak. Untuk meningkatkan penjualan, Dean memutuskan untuk menurunkan harga per pak dengan mengetahui bahwa setiap penurunan harga Rp 1.400 akan menambah 5 penjualan lagi. Jika satu pak berisi 15 lusin, maka harga satu lampu LED ukuran 30 mm agar dapat memaksimumkan jumlah pendapatan adalah ...</p>
+<p>A. Rp 313</p>
+<p>B. Rp 302</p>
+<p>C. Rp 290</p>
+<p>D. Rp 280</p>
+<p>E. Rp 270</p>
+</div>
+                            <div class="space-y-3">
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="q12" value="a" class="mr-3"> A
+                                </label>
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="q12" value="b" class="mr-3"> B
+                                </label>
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="q12" value="c" class="mr-3"> C
+                                </label>
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="q12" value="d" class="mr-3"> D
+                                </label>
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="q12" value="e" class="mr-3"> E
+                                </label>
+                            </div>
+                        </div> 
+
+
+<div id="q13" class="question-card hidden-item">
+<div class="main-txtbox" contenteditable="false" spellcheck="false"><p>Batasan nilai m dari persamaan kuadrat <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mo stretchy="false">(</mo><mn>2</mn><mi>m</mi><mo>−</mo><mn>1</mn><mo stretchy="false">)</mo><mi>x</mi><mo>+</mo><msup><mi>m</mi><mn>2</mn></msup><mo>−</mo><mn>3</mn><mi>m</mi><mo>+</mo><mn>5</mn><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">x^2 + (2m - 1)x + m^2 - 3m + 5 = 0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8974em;vertical-align:-0.0833em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">2</span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">)</span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8974em;vertical-align:-0.0833em;"></span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">3</span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">5</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">0</span></span></span></span> agar mempunyai akar-akar real adalah ...</p>
+<p>A. <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>≥</mo><mo>−</mo><mstyle displaystyle="true" scriptlevel="0"><mfrac><mn>5</mn><mn>2</mn></mfrac></mstyle></mrow><annotation encoding="application/x-tex">m \geq - \cfrac{5}{2}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7719em;vertical-align:-0.136em;"></span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.276em;vertical-align:-0.686em;"></span><span class="mord">−</span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.59em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">2</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.74em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">5</span></span></span></span><span class="vlist-s">&ZeroWidthSpace;</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span></span></span></span></span></span></p>
+<p>B. <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>≥</mo><mo>−</mo><mstyle displaystyle="true" scriptlevel="0"><mfrac><mn>17</mn><mn>8</mn></mfrac></mstyle></mrow><annotation encoding="application/x-tex">m \geq - \cfrac{17}{8}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7719em;vertical-align:-0.136em;"></span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.276em;vertical-align:-0.686em;"></span><span class="mord">−</span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.59em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">8</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.74em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">17</span></span></span></span><span class="vlist-s">&ZeroWidthSpace;</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span></span></span></span></span></span></p>
+<p>C. <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>≥</mo><mstyle displaystyle="true" scriptlevel="0"><mfrac><mn>19</mn><mn>8</mn></mfrac></mstyle></mrow><annotation encoding="application/x-tex">m \geq \cfrac{19}{8}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7719em;vertical-align:-0.136em;"></span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.276em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.59em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">8</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.74em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">19</span></span></span></span><span class="vlist-s">&ZeroWidthSpace;</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span></span></span></span></span></span></p>
+<p>D. <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>≥</mo><mstyle displaystyle="true" scriptlevel="0"><mfrac><mn>19</mn><mn>5</mn></mfrac></mstyle></mrow><annotation encoding="application/x-tex">m \geq \cfrac{19}{5}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7719em;vertical-align:-0.136em;"></span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.276em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.59em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">5</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.74em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">19</span></span></span></span><span class="vlist-s">&ZeroWidthSpace;</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span></span></span></span></span></span></p>
+<p>E. <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>≥</mo><mstyle displaystyle="true" scriptlevel="0"><mfrac><mn>21</mn><mn>4</mn></mfrac></mstyle></mrow><annotation encoding="application/x-tex">m \geq \cfrac{21}{4}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7719em;vertical-align:-0.136em;"></span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.276em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.59em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">4</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.74em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">21</span></span></span></span><span class="vlist-s">&ZeroWidthSpace;</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span></span></span></span></span></span></p>
+</div>
+                            <div class="space-y-3">
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="q13" value="a" class="mr-3"> A
+                                </label>
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="q13" value="b" class="mr-3"> B
+                                </label>
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="q13" value="c" class="mr-3"> C
+                                </label>
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="q13" value="d" class="mr-3"> D
+                                </label>
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="q13" value="e" class="mr-3"> E
+                                </label>
+                            </div>
+                        </div> 
+
+
+
+
+<div id="q14" class="question-card hidden-item">
+<div class="main-txtbox" contenteditable="false" spellcheck="false"><p>Jika x dan y memenuhi sistem persamaan</p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mrow><mi>x</mi><mo>+</mo><mn>1</mn></mrow></msup><mo>−</mo><msup><mn>3</mn><mi>y</mi></msup><mo>=</mo><mn>7</mn></mrow><annotation encoding="application/x-tex">2^{x+1} - 3^y = 7</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8974em;vertical-align:-0.0833em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">x</span><span class="mbin mtight">+</span><span class="mord mtight">1</span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6644em;"></span><span class="mord"><span class="mord">3</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6644em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">y</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">7</span></span></span></span></p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>−</mo><msup><mn>2</mn><mrow><mi>x</mi><mo>−</mo><mn>1</mn></mrow></msup><mo>+</mo><msup><mn>3</mn><mrow><mi>y</mi><mo>+</mo><mn>1</mn></mrow></msup><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">-2^{x-1} + 3^{y+1} = 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8974em;vertical-align:-0.0833em;"></span><span class="mord">−</span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">x</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord"><span class="mord">3</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">y</span><span class="mbin mtight">+</span><span class="mord mtight">1</span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">1</span></span></span></span></p>
+<p>maka nilai dari <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>+</mo><mi>y</mi></mrow><annotation encoding="application/x-tex">x+y</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span></span></span></span> adalah ...</p>
+<p>A. 0</p>
+<p>B. 2</p>
+<p>C. 3</p>
+<p>D. 4</p>
+<p>E. 5</p>
+</div>
+                            <div class="space-y-3">
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="q14" value="a" class="mr-3"> A
+                                </label>
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="q14" value="b" class="mr-3"> B
+                                </label>
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="q14" value="c" class="mr-3"> C
+                                </label>
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="q14" value="d" class="mr-3"> D
+                                </label>
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="q14" value="e" class="mr-3"> E
+                                </label>
+                            </div>
+                        </div> 
+
+
+
+            <div id="q15" class="question-card hidden-item">
+<div class="main-txtbox" contenteditable="false" spellcheck="false"><p>Himpunan penyelesaian dari persamaan <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>9</mn><mrow><mn>3</mn><mi>x</mi></mrow></msup><mo>−</mo><mn>2</mn><mo>×</mo><msup><mn>3</mn><mrow><mn>3</mn><mi>x</mi><mo>+</mo><mn>1</mn></mrow></msup><mo>−</mo><mn>27</mn><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">9^{3x} - 2 \times 3^{3x+1} - 27 = 0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8974em;vertical-align:-0.0833em;"></span><span class="mord"><span class="mord">9</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">3</span><span class="mord mathnormal mtight">x</span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">2</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8974em;vertical-align:-0.0833em;"></span><span class="mord"><span class="mord">3</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">3</span><span class="mord mathnormal mtight">x</span><span class="mbin mtight">+</span><span class="mord mtight">1</span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">27</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">0</span></span></span></span> adalah ...</p>
+<p>A. <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle displaystyle="true" scriptlevel="0"><mfrac><mn>2</mn><mn>3</mn></mfrac></mstyle></mrow><annotation encoding="application/x-tex">\cfrac{2}{3}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:2.276em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.59em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">3</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.74em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">2</span></span></span></span><span class="vlist-s">&ZeroWidthSpace;</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span></span></span></span></span></span></p>
+<p>B. <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle displaystyle="true" scriptlevel="0"><mfrac><mn>4</mn><mn>3</mn></mfrac></mstyle></mrow><annotation encoding="application/x-tex">\cfrac{4}{3}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:2.276em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.59em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">3</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.74em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">4</span></span></span></span><span class="vlist-s">&ZeroWidthSpace;</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span></span></span></span></span></span></p>
+<p>C. <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle displaystyle="true" scriptlevel="0"><mfrac><mn>8</mn><mn>3</mn></mfrac></mstyle></mrow><annotation encoding="application/x-tex">\cfrac{8}{3}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:2.276em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.59em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">3</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.74em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">8</span></span></span></span><span class="vlist-s">&ZeroWidthSpace;</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span></span></span></span></span></span></p>
+<p>D. <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle displaystyle="true" scriptlevel="0"><mfrac><mn>2</mn><mn>3</mn></mfrac></mstyle><mo separator="true">,</mo><mstyle displaystyle="true" scriptlevel="0"><mfrac><mn>4</mn><mn>3</mn></mfrac></mstyle></mrow><annotation encoding="application/x-tex">\cfrac{2}{3} , \cfrac{4}{3}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:2.276em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.59em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">3</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.74em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">2</span></span></span></span><span class="vlist-s">&ZeroWidthSpace;</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.59em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">3</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.74em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">4</span></span></span></span><span class="vlist-s">&ZeroWidthSpace;</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span></span></span></span></span></span></p>
+<p>E. <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle displaystyle="true" scriptlevel="0"><mfrac><mn>2</mn><mn>3</mn></mfrac></mstyle><mo separator="true">,</mo><mstyle displaystyle="true" scriptlevel="0"><mfrac><mn>8</mn><mn>3</mn></mfrac></mstyle></mrow><annotation encoding="application/x-tex">\cfrac{2}{3} , \cfrac{8}{3}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:2.276em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.59em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">3</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.74em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">2</span></span></span></span><span class="vlist-s">&ZeroWidthSpace;</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.59em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">3</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.74em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">8</span></span></span></span><span class="vlist-s">&ZeroWidthSpace;</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span></span></span></span></span></span></p>
+</div>
+                            <div class="space-y-3">
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="q15" value="a" class="mr-3"> A
+                                </label>
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="q15" value="b" class="mr-3"> B
+                                </label>
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="q15" value="c" class="mr-3"> C
+                                </label>
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="q15" value="d" class="mr-3"> D
+                                </label>
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="q15" value="e" class="mr-3"> E
+                                </label>
+                            </div>
+                        </div> 
+
+
+
+<div id="q16" class="question-card hidden-item">
+<div class="main-txtbox" contenteditable="false" spellcheck="false"><p>Jika <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><mi>x</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">g(x) = x +1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">g</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">1</span></span></span></span> dan <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>f</mi><mo>∘</mo><mi>g</mi><mo stretchy="false">)</mo><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>3</mn><mi>x</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">(f \circ g)(x) = x^2 + 3x + 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">∘</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">g</span><span class="mclose">)</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8974em;vertical-align:-0.0833em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">3</span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">1</span></span></span></span> maka <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo></mrow><annotation encoding="application/x-tex">f(x) =</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span></span></span></span> ...</p>
+<p>A. <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>5</mn><mi>x</mi><mo>+</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">x^2 + 5x + 5</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8974em;vertical-align:-0.0833em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">5</span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">5</span></span></span></span></p>
+<p>B. <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mi>x</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">x^2 + x - 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8974em;vertical-align:-0.0833em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">1</span></span></span></span></p>
+<p>C. <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>4</mn><mi>x</mi><mo>+</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">x^2 + 4x + 3</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8974em;vertical-align:-0.0833em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">4</span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">3</span></span></span></span></p>
+<p>D. <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>6</mn><mi>x</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">x^2 + 6x + 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8974em;vertical-align:-0.0833em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">6</span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">1</span></span></span></span></p>
+<p>E. <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mn>3</mn><mi>x</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">x^2 + 3x - 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8974em;vertical-align:-0.0833em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">3</span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">1</span></span></span></span></p>
+</div>
+                            <div class="space-y-3">
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="q16" value="a" class="mr-3"> A
+                                </label>
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="q16" value="b" class="mr-3"> B
+                                </label>
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="q16" value="c" class="mr-3"> C
+                                </label>
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="q16" value="d" class="mr-3"> D
+                                </label>
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="q16" value="e" class="mr-3"> E
+                                </label>
+                            </div>
+                        </div> 
+
+
+
+
+<div id="q17" class="question-card hidden-item">
+<div class="main-txtbox" contenteditable="false" spellcheck="false"><p>Diketahui <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><mn>3</mn><mi>x</mi><mo>+</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">f(x) = 3x + 2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">3</span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">2</span></span></span></span> dan <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>g</mi><mo>∘</mo><mi>f</mi><mo stretchy="false">)</mo><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><mn>6</mn><mi>x</mi><mo>−</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">(g \circ f)(x) = 6x -4</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.03588em;">g</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">∘</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mclose">)</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">6</span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">4</span></span></span></span>. Nilai dari <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>g</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mo stretchy="false">(</mo><mo>−</mo><mn>4</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">g^{-1}(-4)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">g</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mtight">1</span></span></span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord">−</span><span class="mord">4</span><span class="mclose">)</span></span></span></span> = ...</p>
+<p>A. 4</p>
+<p>B. 2</p>
+<p>C. 1</p>
+<p>D. -2</p>
+<p>E. -4</p>
+</div>
+                            <div class="space-y-3">
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="q17" value="a" class="mr-3"> A
+                                </label>
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="q17" value="b" class="mr-3"> B
+                                </label>
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="q17" value="c" class="mr-3"> C
+                                </label>
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="q17" value="d" class="mr-3"> D
+                                </label>
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="radio" name="q17" value="e" class="mr-3"> E
+                                </label>
+                            </div>
+                        </div> 
+
+
+
+
+            <!-- Sample Question 2: Multiple-Choice (Multiple Correct) -->
+            <div id="q99" class="question-card hidden-item">
+                <div class="main-txtbox" contenteditable="true" spellcheck="false"><div><div><i>Pilih semua jawaban yang benar!</i></div></div><div><br></div>Suatu pinjaman akan dilunasi dengan sistem anuitas bulanan sebesar Rp 4.000.000.&nbsp;<div><br><div>A. Jika bunga pertama sebesar Rp 2.500.000, maka angsuran pertama sebesar Rp 1.500.000</div><div><br></div><div>B. Jika angsuran ke-3 sebesar Rp 1.653.750, maka bunga ke-3 sebesar Rp 2.346.250</div><div><br></div><div>C. Jika angsuran ke-5 sebesar Rp 1.823.259,39, maka bunga ke-5 sebesar Rp 2.176.740,61</div><div><br></div><div>D. Jika bunga ke-6 sebesar Rp 2.085.577,66 dan bunga ke-7 sebesar Rp 1.989.856,54, maka jumlah angsuran ke-6 dan ke-7 lebih dari Rp 4.000.000</div></div></div>
+                <div class="space-y-3">
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="checkbox" name="q99" value="a" class="mr-3"> A
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="checkbox" name="q99" value="b" class="mr-3"> B
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="checkbox" name="q99" value="c" class="mr-3"> C
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="checkbox" name="q99" value="d" class="mr-3"> D
+                    </label>
+                </div>
+            </div>
+
+            <!-- Sample Question 3: True/False -->
+            <div id="q100" class="question-card hidden-item">
+                <div class="main-txtbox" contenteditable="false" spellcheck="false"><p>Jika dua dadu homogen dilempar bersamaan, maka peluang munculnya kedua mata dadu sama adalah <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle displaystyle="true" scriptlevel="0"><mfrac><mn>1</mn><mn>6</mn></mfrac></mstyle></mrow><annotation encoding="application/x-tex">\cfrac{1}{6}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:2.276em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.59em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">6</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.74em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">&ZeroWidthSpace;</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span></span></span></span></span></span></p>
+</div>
+                 <div class="space-y-3">
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q100" value="true" class="mr-3"> Benar
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="q100" value="false" class="mr-3"> Salah
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="mt-6 pt-4 border-t flex justify-between items-center">
+            <button id="skip-btn" class="bg-yellow-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-yellow-600 transition-colors">Skip</button>
+            <button id="next-btn" class="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-700 transition-colors">Next</button>
+            <button id="finish-btn" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors hidden-item">Finish Exam</button>
+        </div>
+    </div>
+
+    <!-- Results Container -->
+    <div id="results-container" class="w-full max-w-3xl bg-white p-6 rounded-xl shadow-lg hidden-item">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-2">Exam Complete!</h1>
+        <p id="results-student-name" class="text-center text-gray-600 mb-4"></p>
+        <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg mb-4">
+            <p class="font-bold">Final Score: <span id="final-score" class="text-2xl"></span></p>
+        </div>
+        <div id="performance-stats">
+            <h2 class="text-2xl font-semibold mb-3 text-gray-800">Performance Details</h2>
+            <div id="incorrect-answers" class="mb-4"></div>
+            <div id="time-stats"></div>
+        </div>
+        <div class="text-center mt-6">
+            <p id="submission-status" class="text-gray-500">Submitting results to server...</p>
+        </div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    // --- Configuration --- //
+    const examConfig = {
+        'q1': { type: 'single', answer: 'b' },
+        'q2': { type: 'single', answer: 'c' },
+        'q3': { type: 'single', answer: 'c' },
+        'q4': { type: 'single', answer: 'e' },
+        'q5': { type: 'single', answer: 'a' },
+        'q6': { type: 'single', answer: 'e' },
+        'q7': { type: 'single', answer: 'c' },
+        'q8': { type: 'single', answer: 'c' },
+        'q9': { type: 'single', answer: 'e' },
+        'q10': { type: 'single', answer: 'b' },
+        'q11': { type: 'single', answer: 'b' },
+        'q12': { type: 'single', answer: 'd' },
+        'q13': { type: 'single', answer: 'c' },
+        'q14': { type: 'single', answer: 'b' },
+        'q15': { type: 'single', answer: 'a' },
+        'q16': { type: 'single', answer: 'b' },
+        'q17': { type: 'single', answer: 'b' },
+        'q99': { type: 'multiple', answer: ['a', 'b', 'c'] },
+        'q100': { type: 'true-false', answer: 'true' }
+    };
+
+    // --- State Management --- //
+    let examState = {
+        studentName: '',
+        currentQuestionIndex: 0,
+        questionOrder: Object.keys(examConfig),
+        skippedQuestions: [],
+        answers: {},
+        timeSpent: {},
+        questionStartTime: null,
+        totalQuestions: Object.keys(examConfig).length
+    };
+
+    // --- DOM Elements --- //
+    const nameModal = document.getElementById('name-modal');
+    const nameInput = document.getElementById('student-name-input');
+    const nameError = document.getElementById('name-error');
+    const startExamBtn = document.getElementById('start-exam-btn');
+    const resumeModal = document.getElementById('resume-modal');
+    const resumeYesBtn = document.getElementById('resume-yes-btn');
+    const resumeNoBtn = document.getElementById('resume-no-btn');
+    const examContainer = document.getElementById('exam-container');
+    const resultsContainer = document.getElementById('results-container');
+    const studentNameDisplay = document.getElementById('student-name-display');
+    const currentQNumSpan = document.getElementById('current-q-num');
+    const totalQNumSpan = document.getElementById('total-q-num');
+    const nextBtn = document.getElementById('next-btn');
+    const skipBtn = document.getElementById('skip-btn');
+    const finishBtn = document.getElementById('finish-btn');
+
+    // --- Functions --- //
+
+    /**
+     * Initializes the exam, checking for saved progress first.
+     */
+    function init() {
+        const savedState = localStorage.getItem('examProgress');
+        if (savedState) {
+            resumeModal.classList.remove('hidden-item');
+            resumeModal.classList.add('visible-item');
+        } else {
+            nameModal.classList.remove('hidden-item');
+            nameModal.classList.add('visible-item');
+        }
+        totalQNumSpan.textContent = examState.totalQuestions;
+    }
+
+    /**
+     * Starts the exam flow after getting the student's name.
+     */
+    function startExam() {
+        // Hide all modals before showing the exam
+        nameModal.classList.add('hidden-item');
+        resumeModal.classList.add('hidden-item');
+
+        studentNameDisplay.textContent = `Student: ${examState.studentName}`;
+        examContainer.classList.remove('hidden-item');
+        examContainer.classList.add('visible-item');
+        showQuestion();
+    }
+    
+    /**
+     * Displays the current question and starts the timer for it.
+     */
+    function showQuestion() {
+        // Hide all questions first
+        document.querySelectorAll('.question-card').forEach(q => {
+            q.classList.add('hidden-item');
+            q.classList.remove('visible-item');
+        });
+
+        if (examState.currentQuestionIndex >= examState.questionOrder.length) {
+            // We've finished the main list, now check for skipped questions
+            if (examState.skippedQuestions.length > 0) {
+                examState.questionOrder = examState.skippedQuestions;
+                examState.skippedQuestions = [];
+                examState.currentQuestionIndex = 0;
+            } else {
+                // No more questions, end the exam
+                finishExam();
+                return;
+            }
+        }
+
+        const questionId = examState.questionOrder[examState.currentQuestionIndex];
+        const questionEl = document.getElementById(questionId);
+
+        if (questionEl) {
+            questionEl.classList.remove('hidden-item');
+            questionEl.classList.add('visible-item');
+            
+            // Update progress indicator
+            const answeredCount = Object.keys(examState.answers).filter(k => examState.answers[k] !== null).length;
+            currentQNumSpan.textContent = answeredCount + 1;
+
+            // Start timer for this question
+            examState.questionStartTime = Date.now();
+        }
+        
+        // Update button visibility
+        const isLastQuestion = (examState.currentQuestionIndex === examState.questionOrder.length - 1) && examState.skippedQuestions.length === 0;
+        nextBtn.classList.toggle('hidden-item', isLastQuestion);
+        finishBtn.classList.toggle('hidden-item', !isLastQuestion);
+        skipBtn.style.display = 'block';
+
+        if (examState.skippedQuestions.length > 0 && examState.questionOrder.length -1 === examState.currentQuestionIndex) {
+            skipBtn.style.display = 'none';
+        }
+    }
+
+    /**
+     * Records the answer for the current question.
+     */
+    function recordAnswer() {
+        const questionId = examState.questionOrder[examState.currentQuestionIndex];
+        if (!questionId) return; // Exit if no more questions
+        const config = examConfig[questionId];
+        const questionEl = document.getElementById(questionId);
+        
+        if (config.type === 'single' || config.type === 'true-false') {
+            const selected = questionEl.querySelector(`input[name="${questionId}"]:checked`);
+            examState.answers[questionId] = selected ? selected.value : null;
+        } else if (config.type === 'multiple') {
+            const selected = Array.from(questionEl.querySelectorAll(`input[name="${questionId}"]:checked`)).map(cb => cb.value);
+            examState.answers[questionId] = selected.length > 0 ? selected : null;
+        }
+    }
+
+    /**
+     * Records the time spent on the current question.
+     */
+    function recordTime() {
+        if (examState.questionStartTime) {
+            const timeElapsed = Date.now() - examState.questionStartTime;
+            const questionId = examState.questionOrder[examState.currentQuestionIndex];
+            if (questionId) {
+                examState.timeSpent[questionId] = (examState.timeSpent[questionId] || 0) + timeElapsed;
+            }
+        }
+    }
+    
+    /**
+     * Saves the current exam state to localStorage.
+     */
+    function saveProgress() {
+        localStorage.setItem('examProgress', JSON.stringify(examState));
+    }
+
+    /**
+     * Moves to the next question in the sequence.
+     */
+    function handleNext() {
+        recordTime();
+        recordAnswer();
+        examState.currentQuestionIndex++;
+        saveProgress();
+        showQuestion();
+    }
+
+    /**
+     * Skips the current question to be answered later.
+     */
+    function handleSkip() {
+        recordTime(); // Record time spent so far
+        const questionId = examState.questionOrder.splice(examState.currentQuestionIndex, 1)[0];
+        examState.skippedQuestions.push(questionId);
+        saveProgress();
+        showQuestion(); // Show the next question in the modified order
+    }
+
+    /**
+     * Finishes the exam and calculates the score.
+     */
+    function finishExam() {
+        // Record answer and time for the very last question
+        recordTime();
+        recordAnswer();
+        saveProgress(); // Final save
+
+        examContainer.classList.add('hidden-item');
+        resultsContainer.classList.remove('hidden-item');
+        resultsContainer.classList.add('visible-item');
+        
+        calculateAndDisplayResults();
+        sendResultsToServer();
+        
+        // Clean up
+        localStorage.removeItem('examProgress');
+    }
+
+    /**
+     * Calculates score and generates the results page content.
+     */
+    function calculateAndDisplayResults() {
+        let correctCount = 0;
+        const incorrectAnswersHtml = [];
+        const timeStatsHtml = [];
+
+        resultsContainer.querySelector('#results-student-name').textContent = `Results for: ${examState.studentName}`;
+
+        for (const questionId in examConfig) {
+            const config = examConfig[questionId];
+            const userAnswer = examState.answers[questionId];
+            let isCorrect = false;
+
+            if (config.type === 'multiple') {
+                const correctAnswer = config.answer.sort();
+                const sortedUserAnswer = Array.isArray(userAnswer) ? userAnswer.sort() : [];
+                isCorrect = JSON.stringify(correctAnswer) === JSON.stringify(sortedUserAnswer);
+            } else {
+                isCorrect = userAnswer === config.answer;
+            }
+
+            if (isCorrect) {
+                correctCount++;
+            } else {
+                const questionText = document.getElementById(questionId).querySelector('div').innerHTML;
+                incorrectAnswersHtml.push(`
+                    <div class="p-4 border rounded-lg mb-3 bg-red-50 border-red-200">
+                        <p class="font-semibold text-red-800">${questionText}</p>
+                        <p class="text-sm text-red-600">Your answer: <span class="font-mono">${userAnswer || 'Not answered'}</span></p>
+                        <p class="text-sm text-green-800">Correct answer: <span class="font-mono">${config.answer}</span></p>
+                    </div>
+                `);
+            }
+
+            const time = (examState.timeSpent[questionId] / 1000 || 0).toFixed(2);
+            const questionText = document.getElementById(questionId).querySelector('div').innerHTML;
+            timeStatsHtml.push(`
+                <li class="flex justify-between py-2 border-b">
+                    <span class="text-gray-700">${questionId}</span>
+                    <span class="font-semibold text-gray-900">${time} seconds</span>
+                </li>
+            `);
+        }
+
+        // Display score
+        const score = (correctCount / examState.totalQuestions) * 100;
+        document.getElementById('final-score').textContent = `${score.toFixed(2)}%`;
+
+        // Display incorrect answers
+        const incorrectContainer = document.getElementById('incorrect-answers');
+        if (incorrectAnswersHtml.length > 0) {
+            incorrectContainer.innerHTML = `<h3 class="text-xl font-semibold mb-3 text-gray-800">Questions to Review</h3>${incorrectAnswersHtml.join('')}`;
+        } else {
+            incorrectContainer.innerHTML = `<div class="p-4 border rounded-lg bg-green-50 border-green-200"><p class="font-semibold text-green-800">Excellent! All questions were answered correctly.</p></div>`;
+        }
+
+        // Display time stats
+        document.getElementById('time-stats').innerHTML = `
+            <h3 class="text-xl font-semibold mb-3 text-gray-800">Time per Question</h3>
+            <ul class="list-none">${timeStatsHtml.join('')}</ul>
+        `;
+    }
+
+    /**
+     * Simulates sending the final results to a PHP server.
+     */
+    async function sendResultsToServer() {
+        const submissionStatus = document.getElementById('submission-status');
+        const results = {
+            student: examState.studentName,
+            answers: examState.answers,
+            timeSpent: examState.timeSpent,
+            finalScore: document.getElementById('final-score').textContent
+        };
+
+        try {
+            // NOTE: This will fail in a real scenario without a server.
+            const response = await fetch('submit.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(results),
+            });
+            
+
+            console.log(JSON.stringify(results))
+
+
+
+            if (response.ok) {
+                submissionStatus.textContent = 'Results successfully submitted.';
+                submissionStatus.className = 'text-green-600';
+            } else {
+                throw new Error('Server responded with an error.');
+            }
+
+        } catch (error) {
+            console.warn('Could not send data to server. This is expected in a local/static file environment.');
+            console.log('--- Data that would be sent to server ---', JSON.stringify(results, null, 2));
+            submissionStatus.textContent = 'Results saved. (Server submission simulated).';
+            submissionStatus.className = 'text-gray-500';
+        }
+    }
+
+    // --- Event Listeners --- //
+    startExamBtn.addEventListener('click', () => {
+        const name = nameInput.value.trim();
+        if (name) {
+            nameError.classList.add('hidden-item');
+            examState.studentName = name;
+            saveProgress();
+            startExam();
+        } else {
+            nameError.classList.remove('hidden-item');
+        }
+    });
+
+    resumeYesBtn.addEventListener('click', () => {
+        const savedState = localStorage.getItem('examProgress');
+        examState = JSON.parse(savedState);
+        startExam();
+    });
+
+    resumeNoBtn.addEventListener('click', () => {
+        localStorage.removeItem('examProgress');
+        resumeModal.classList.add('hidden-item');
+        nameModal.classList.remove('hidden-item');
+        nameModal.classList.add('visible-item');
+    });
+
+    nextBtn.addEventListener('click', handleNext);
+    skipBtn.addEventListener('click', handleSkip);
+    finishBtn.addEventListener('click', finishExam);
+
+    // --- Initial Load --- //
+    init();
+});
+</script>
+
+</body>
+</html>
